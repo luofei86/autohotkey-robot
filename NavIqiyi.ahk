@@ -1,67 +1,228 @@
-﻿;wb := ComObjCreate("InternetExplorer.Application")
+﻿;~ #Include tour/GetBroswerUrl.ahk
+
+;wb := ComObjCreate("InternetExplorer.Application")
 ;wb.Visible := True
 ;wb.Navigate("http://iqiyi.com")
 
 ;wb := IEget("about:Tabs")
-wb := ComObjCreate("InternetExplorer.Application") ;create a IE instance
-wb.Visible := True
-wb.Navigate("http://www.iqiyi.com/")
-IELoad(wb)
+
+
+closePreIe()
+
+WinGetPos,,, desk_width, desk_height, Program Manager
+
+
+
+homeUrl := "http://www.iqiyi.com/"
+homeUrl := "about:tabs"
+;homePageWb := gotoHomepage("about:tabs")
+homePageWb := gotoHomepage(homeUrl)
+
+if !homePageWb
+{
+	ExitApp
+}
+
+;print pos
+pWin := videoWb.document.parentWindow
+MsgBox % "pWin.screenLeft" () "" ()
+
+Sleep 6000
+searchKeyword := "夜店高薪招鉴黄师作神曲"
+;searchUrl := "http://www.iqiyi.com/v_19rrlxsds8.html"
+searchUrl := "http://www.iqiyi.com/w_19rt539vdt.html"
+videoTimes := 1000
 
 ;Search
-gotoSearch(wb)
-
-;Wait(wb)
-;MsgBox "Wait loading search result"
-Sleep 1000
-
-
-wb := IEGet("夜店高薪招鉴黄师作神曲")
-if !wb
+searchWb := gotoSearchPage(homePageWb, searchKeyword)
+if !searchWb
 {
-	return
-}
-;MsgBox "Find posibile links"
-posibileLinks := getSearchResult(wb)
-
-;MsgBox % "END Find posibile links " (posibileLinks)
-for posibileLink in posibileLinks
-{
-	MsgBox % "Url:" (posibileLink.getAttribute("href"))
+	homePageWb.quit
+	ExitApp
 }
 
-getSearchResult(wb)
+;MsgBox "FIND SEARCH RESULT AND CLICK IT."
+findResult := clickToSearchUrlPage(searchWb, searchUrl)
+;wb.quit
+if findResult
 {
-	Links := Object()
-	;MsgBox % "Links:" (wb.document.getElementsByTagName("body")[0].innerHTML)
-	
-	length := wb.document.links.length
-	Loop, %length%
+	videoWb := gotoResultUrlPage(searchUrl)
+	if videoWb
 	{
-		MsgBox "Links:" %A_Index%
-		anchorLink := wb.document.links[A_index]
-		MsgBox % "Links:" (anchorLink.getAttribute("href"))
-		linkClass := anchorLink.getAttribute("class")
-		;MsgBox % "CLASS:" (linkClass)
-		if linkClass = "figure figure-180101"
+		startAndWaitVideoPlayFinished(videoWb, videoTimes)
+	}
+}
+else
+{
+	;goto direct
+}
+^j::
+{
+;Sleep % videoTimes
+	closeWb(videoWb)
+	closeWb(searchWb)
+	closeWb(homePageWb, True)
+}
+ExitApp
+
+closeWb(wb, last = false){
+	if wb
+	{
+		wb.quit
+		if !last
 		{
-			Links.Insert(anchorLink)
+			Sleep 2000
 		}
 	}
-	return Links
+}
+gotoHomepage(loadUrl)
+{
+	homePageWb := ComObjCreate("InternetExplorer.Application") ;create a IE instance
+	homePageWb.Visible := True
+	if(StrLen(loadUrl) > 0)
+	{
+		homePageWb.Navigate(loadUrl)		
+	}else{
+		homePageWb.Navigate("about:Tabs")
+	}
+	IELoad(homePageWb)
+	;OutputDebug, "Load main page"
+
+	WinMaximize, % "ahk_id " homePageWb.HWND
+	return homePageWb
 }
 
+gotoSearchPage(homePageWb, searchKeyword)
+{
+	;Search
 
-gotoSearch(wb)
+	doSearch(homePageWb, searchKeyword)
+
+	;Wait(homePageWb)
+	;MsgBox "Wait loading search result"
+	Sleep 2000
+	;wb.quit
+
+	searchWb := IEGet(searchKeyword)
+	if !searchWb
+	{
+		MsgBox "No get Search page"
+		return
+	}
+	Wait(searchWb)
+	return searchWb
+}
+
+gotoResultUrlPage(searchUrl)
+{
+	videoWb := IEGetByUrl(searchUrl)
+	if videoWb
+	{
+		Wait(videoWb)
+		return videoWb
+	}
+}
+
+startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
+{
+	pWin := videoWb.document.parentWindow
+	flashPlayer := videoWb.document.getElementById("flash")
+	if flashPlayer
+	{
+		MouseGetPos, xpos, ypos
+		;
+		global desk_height
+		;MsgBox % "Xpos:" (xpos) "Ypos:" (ypos)
+		pos := findPos(flashPlayer)
+		;MsgBox % "bottom:" (pos.bottom) ", left:" (pos.left) ", top:" (pos.top)
+		mouseGoToX := pos.left + pWin.screenLeft  + 30
+		mouseGoToY := pos.bottom + 20
+		mouseMoveX := mouseGoToX - xpos
+		mouseMoveY := (desk_height - ypos) - mouseGoToY 
+		;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)
+		;MsgBox, 0, code img, %	"Left:	"		pos.left + pWin.screenLeft ; left side of element rectagle + left side of screen
+		;							.	"`nTop:	"		pos.top + pWin.screenTop
+		;							.	"`nRight:	"	pos.right + pWin.screenLeft
+		;							.	"`nBottom:	"	pos.bottom + pWin.screenTop
+		MouseMove, mouseMoveX, mouseMoveY, 50, R
+		MouseClick, left
+		Sleep 1000
+		;MouseGetPos, xpos, ypos
+		;MsgBox % "Xpos:" (xpos) "Ypos:" (ypos)
+;~ bottom
+;~ :
+;~ 686
+;~ height
+;~ :
+;~ 631
+;~ left
+;~ :
+;~ 271.5
+;~ right
+;~ :
+;~ 1331.5
+;~ top
+;~ :
+;~ 55
+		Sleep % sleepTimeMis
+	}
+	;~ MsgBox % "Body:" (wb.document.getElementsByTagName("body")[0].innerHTML)
+}
+
+closePreIe()
+{
+	; Close all windows (open/minimized, browsers) but not pwr off
+	WinGet, id, list,,, Program Manager
+	Loop, %id%
+	{
+		this_id := id%A_Index% 
+		;WinActivate, ahk_id %this_id%
+		WinGetClass, this_class, ahk_id %this_id%
+		;WinGetTitle, this_title, ahk_id %this_id%
+		;MsgBox % "Class:" (this_class) ", Title:" (this_title)
+		if (this_class = "IEFrame")
+		{
+			WinClose, ahk_id %this_id%;
+		}
+		;If(this_class != "Shell_traywnd") && (this_class != "Button")  ; If class is not Shell_traywnd and not Button
+		;	WinClose, ahk_id %this_id% ;This is what it should be ;MsgBox, This ahk_id %this_id% ; Easier to test ;)
+	}
+}
+;close all ie page exclude iqiyi homepage
+closeExcludeIqiyiHomePagePage()
+{
+}
+
+;getSearchResult(wb, searchUrl, ByRef resultWinTitles)
+clickToSearchUrlPage(searchWb, searchUrl)
+{
+	Links :=searchWb.document.links
+	length := searchWb.document.links.length
+	Loop % length
+	{
+		anchorLink := Links[A_index-1]
+		href := anchorLink.getAttribute("href")
+		if InStr(href, searchUrl)
+		{
+			anchorLink.click()
+			return True
+		}
+	}
+	return False
+}
+
+doSearch(wb, searchKeyword)
 {
 	searchForm := wb.document.getElementsByTagName("form")[0]
 	searchInput := searchForm.getElementsByTagName("div")[0].getElementsByTagName("span")[0].getElementsByTagName("input")[0]
 	Sleep 1000
 	searchInput.focus()
-	searchInput.value := "夜店高薪招鉴黄师作神曲"
+	searchInput.value := searchKeyword
 	Sleep 1000
 	;searchForm.submit()
 	Send {Enter}
+	;MsgBox "Enter to search"
+	Sleep 1000
 }
 login(wb)
 {
@@ -206,22 +367,41 @@ ExistsVcode(wb)
 			}			
 		}
 	}
-	Return False	
+	Return False
 }
-
-
-
-IEGet(Name="")        ;Retrieve pointer to existing IE window/tab
+IEGetByUrl(searchUrl)
+{
+    For wb in ComObjCreate( "Shell.Application" ).Windows
+	{
+		if InStr(wb.FullName, "iexplore.exe" )
+		{
+			try
+			{
+				wbUrl := wb.document.URL				
+				if InStr(wbUrl, searchUrl)
+				{
+					MsgBox % "Find wb by url:" (searchUrl)
+					return wb
+				}
+			}
+			catch e
+			{}
+		}
+	}
+}
+IEGet(Name="") ;Retrieve pointer to existing IE window/tab
 {
     IfEqual, Name,, WinGetTitle, Name, ahk_class IEFrame
-        Name := ( Name="New Tab - Windows Internet Explorer" ) ? "about:Tabs"
+	Name := ( Name="New Tab - Windows Internet Explorer" ) ? "about:Tabs"
         : RegExReplace( Name, " - (Windows|Microsoft) Internet Explorer" )
-    For wb in ComObjCreate( "Shell.Application" ).Windows{
-		;MsgBox	% "Browser name:" (wb.LocationName)
-        If ( wb.LocationName = Name || InStr(wb.LocationName, Name)) && InStr( wb.FullName, "iexplore.exe" )
-			Return wb
+    For wb in ComObjCreate( "Shell.Application" ).Windows
+	{
+		if InStr(wb.FullName, "iexplore.exe" ) && (wb.LocationName = Name || InStr(wb.LocationName, Name))
+		{
+				Return wb
+		}
 	}
-} ;written by Jethrow
+}
 
 IELoad(wb)    ;You need to send the IE handle to the function unless you define it as global.
 {
@@ -236,7 +416,7 @@ IELoad(wb)    ;You need to send the IE handle to the function unless you define 
     Loop    ;optional check to wait for the page to completely load
         Sleep,100
     Until (wb.Document.Readystate = "Complete")
-Return True
+	Return True
 }
 
 Wait(wb)
