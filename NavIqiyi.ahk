@@ -5,9 +5,6 @@
 ;wb.Visible := True
 ;wb.Navigate("http://iqiyi.com")
 
-
-
-
 closePreIe()
 
 ;;;screen Resolution
@@ -31,9 +28,15 @@ if !homepageWb
 ;hidden favriote bar
 ;hiddenIeBar(homepageWb, "a")
 
-logoutFromHomePage(homepageWb)
+MsgBox "Login out"
+logoutFromHomepage(homepageWb)
 
+MsgBox "Start login" 
+loginFromHomepage(homepageWb, "13693243521", "1470-=p[]\l;'")
 
+^q::
+	closeWb(homepageWb, True)
+ExitApp
 ;~ ^q::
 	;~ homepageWb.quit
 
@@ -67,13 +70,13 @@ else
 {
 	;goto direct
 }
-;~ ^j::
-;~ {
-;Sleep % videoTimes
+^j::
+{
+;~ ;Sleep % videoTimes
 	closeWb(videoWb)
 	closeWb(searchWb)
 	closeWb(homepageWb, True)
-;~ }
+}
 ExitApp
 
 hiddenIeBar(wb, keystore)
@@ -127,11 +130,15 @@ moveToPos(left, top)
 closeWb(wb, last = false){
 	if wb
 	{
-		wb.quit
-		if !last
+		try
 		{
-			Sleep 2000
+			wb.quit
+			if !last
+			{
+				Sleep 2000
+			}
 		}
+		catch{}
 	}
 }
 gotoHomepage(loadUrl)
@@ -145,10 +152,11 @@ gotoHomepage(loadUrl)
 		homePageWb.Navigate("about:Tabs")
 	}
 	;IELoad(homePageWb)
-	Wait(homePageWb)
 	;OutputDebug, "Load main page"
 
 	WinMaximize, % "ahk_id " homePageWb.HWND
+	Sleep 200
+	Wait(homePageWb)
 	return homePageWb
 }
 
@@ -225,6 +233,7 @@ startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
 ;~ :
 ;~ 55
 		Sleep % sleepTimeMis
+		MsgBox "Played"
 	}
 	;~ MsgBox % "Body:" (wb.document.getElementsByTagName("body")[0].innerHTML)
 }
@@ -284,151 +293,7 @@ doSearch(wb, searchKeyword)
 	;MsgBox "Enter to search"
 	Sleep 1000
 }
-login(wb)
-{
-	pWin := wb.document.parentWindow
-	;MsgBox % wb.document.getElementById("widget-userregistlogin").innerHTML
-	;MsgBox "Hello"
-	Sleep 1000
-	wb.document.getElementById("widget-userregistlogin").getElementsByTagName("div")[3].getElementsByTagName("div")[0].getElementsByTagName("a")[0].click()
 
-	Sleep 2000
-
-	;######
-	wb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[0].getElementsByTagName("input")[0].focus()
-	wb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[0].getElementsByTagName("input")[0].value := "13693243521"
-
-	Sleep 2000
-	SetKeyDelay, 500
-	Send {Tab}
-
-	wb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[1].getElementsByTagName("input")[1].focus()
-	wb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[1].getElementsByTagName("input")[1].value := "1470-=p[]\l;'"
-
-	Sleep 2000
-	if (ExistsVcode(wb))
-	{
-		;MsgBox "Move to img"
-		moveToImg(wb, pWin)
-		Sleep 2000			
-		MouseClick, right
-		Sleep 1000
-		Send {s}
-		Sleep 500
-		Send {Enter}
-		Sleep 500
-		Send {Tab}
-		Sleep 500
-		Send {Enter}
-		Return
-	}
-	else
-	{	
-		;MsgBox "No pic code"
-		Send {Enter}
-	}
-	;;;;login
-	Sleep 1000
-	;MsgBox "Login"
-	if (ExistsVcode(wb))
-	{
-		;MsgBox "Move to img"
-		moveToImg(wb, pWin)
-		Sleep 2000			
-		MouseClick, right
-		Sleep 1000
-		Send {s}
-		Sleep 500
-		Send {Enter}
-		Sleep 500
-		Send {Tab}
-		Sleep 500
-		Send {Enter}
-		Return
-	}
-	else
-	{
-		MsgBox "No pic code"
-	}
-}
-;;;是否存在验证码
-
-moveToImg(wb, pWin)
-{
-	table := wb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0]
-	tbody := table.getElementsByTagName("tbody")[0]
-	trs :=  tbody.getElementsByTagName("tr")
-	if (trs && trs.length >=3)
-	{
-		dataElem := trs[2].getAttribute("data-loginbox-elem")		
-		if (dataElem = "piccodeTr")
-		{
-			tds := trs[2].getElementsByTagName("td")
-			divs := tds[0].getElementsByTagName("div")
-			spans := divs[0].getElementsByTagName("span")
-			images := spans[1].getElementsByTagName("img")
-			if (images && images.length >0)
-			{
-				MouseGetPos, xpos, ypos 
-				;MsgBox % "Cur mouse xpos:" (xpos) " ypos:" (ypos)
-				;MsgBox % "pWin xpos:" (pWin.screenLeft) " ypos:" (pWin.screenTop)
-				img := images[0]
-				pos := findPos(img)
-				;MsgBox % "Cur img Top:" (pos.top) " Left:" (pos.left) "Right:" (pos.right)
-				mouseGoToX := pos.left + pWin.screenLeft  + 30
-				mouseGoToY := pos.top + pWin.screenTop + 30
-				mouseMoveX := mouseGoToX - xpos
-				mouseMoveY := mouseGoToY - ypos
-				;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)
-				;MsgBox, 0, code img, %	"Left:	"		pos.left + pWin.screenLeft ; left side of element rectagle + left side of screen
-				;							.	"`nTop:	"		pos.top + pWin.screenTop
-				;							.	"`nRight:	"	pos.right + pWin.screenLeft
-				;							.	"`nBottom:	"	pos.bottom + pWin.screenTop
-				MouseMove, mouseMoveX, mouseMoveY, 50, R
-				return True
-			}			
-		}
-	}
-	return False
-}
-
-findPos(el) {
-    if (el.getBoundingClientRect)
-	{
-        return el.getBoundingClientRect()
-	}
-    else {
-        x = 0, y = 0
-        loop
-        {
-            x += el.offsetLeft - el.scrollLeft
-            y += el.offsetTop - el.scrollTop
-        } until (el = el.offsetParent)
-        return "left:" x ", " "top:" y
-    }      
-}
-
-ExistsVcode(wb)
-{
-	table := wb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0]
-	tbody := table.getElementsByTagName("tbody")[0]
-	trs :=  tbody.getElementsByTagName("tr")	
-	if (trs && trs.length >=3)
-	{
-		dataElem := trs[2].getAttribute("data-loginbox-elem")		
-		if (dataElem = "piccodeTr"){
-			tds := trs[2].getElementsByTagName("td")
-			divs := tds[0].getElementsByTagName("div")
-			spans := divs[0].getElementsByTagName("span")
-			images := spans[1].getElementsByTagName("img")
-			if (images && images.length >0)
-			{
-				Return True
-			}			
-		}
-	}
-	Return False
-}
 IEGetByUrl(searchUrl)
 {
     For wb in ComObjCreate( "Shell.Application" ).Windows
@@ -440,7 +305,7 @@ IEGetByUrl(searchUrl)
 				wbUrl := wb.document.URL				
 				if InStr(wbUrl, searchUrl)
 				{
-					;MsgBox % "Find wb by url:" (searchUrl)
+					MsgBox % "Find wb by url:" (searchUrl)
 					return wb
 				}
 			}
@@ -456,10 +321,15 @@ IEGet(Name="") ;Retrieve pointer to existing IE window/tab
         : RegExReplace( Name, " - (Windows|Microsoft) Internet Explorer" )
     For wb in ComObjCreate( "Shell.Application" ).Windows
 	{
-		if InStr(wb.FullName, "iexplore.exe" ) && (wb.LocationName = Name || InStr(wb.LocationName, Name))
+		if (InStr(wb.FullName, "iexplore.exe" ))
 		{
+			Wait(wb)
+			if (wb.LocationName = Name || InStr(wb.LocationName, Name))
+			{
 				Return wb
+			}
 		}
+		
 	}
 }
 
