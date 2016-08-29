@@ -23,6 +23,7 @@
 		;~ </div>
 	;~ </div>
 ;~ </div>
+;~ http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F
 logoutFromHomepage(homepageWb)
 {
 	if (homepageWb)
