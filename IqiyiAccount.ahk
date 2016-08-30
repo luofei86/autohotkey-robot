@@ -25,7 +25,22 @@
 	;~ </div>
 ;~ </div>
 ;~ http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F
-logoutFromHomepage(homepageWb)
+IqiyiAccoountHadAccountLogged(homepageWb)
+{
+	try{
+		return (StrLen(homepageWb.document.getElementById("top-username").innerHTML) > 0)
+	}catch{}
+	return false
+
+}
+IqiyiAccoountIsCurrentLoggedAccount(homepageWb, nickname)
+{
+	try{
+		return homepageWb.document.getElementById("top-username").innerHTML = nickname
+	}catch{}
+	return false
+}
+IqiyiLogoutFromHomepage(homepageWb)
 {
 	if (homepageWb)
 	{

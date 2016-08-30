@@ -1,96 +1,96 @@
-
+#Include MouseMoveUtils.ahk
 ;test
 ;url like http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F or 
 ;url like http://passport.iqiyi.com/pages/secure/index.action
 
-^u::
-{
-	loginWb := IEDomGetByUrl("http://passport.iqiyi.com/user/login.php")
-	;"13693243521", "1470-=p[]\l;'")
-	loginPwd := "1470-=p[]\l;'"
-	loginName := "13693243521"
-	if loginWb
-	{
-		MsgBox % (loginWb.document.body.innerHTML)
-	}
-	secureIndexPage := IEDomGetByUrl("http://passport.iqiyi.com/pages/secure/index.action")
-	if secureIndexPage
-	{
-		;MsgBox % (secureIndexPage.document.body.innerHTML)
-		inputElements := secureIndexPage.document.getElementsByTagName("input")
-		length := inputElements.length
-		inputAccount := False
-		inputPwd := False		
-		Loop % length
-		{
-			inputEle := inputElements[A_Index-1]
-			;MsgBox % inputEle.classname
-			;MsgBox % (inputEle.getAttribute("type"))
-			inputEleType := inputEle.getAttribute("type")
-			if (inputEleType = "password")
-			{
-				inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
-				if (inputEleLoginboxElemValue = "passwdInput")
-				{
-					;MsgBox "Find input pwd"
-					inputEle.focus()
-					inputEle.click()
-					Sleep 500
-					inputEle.value := loginPwd
-					Sleep 2000
-					inputPwd := True
-				}
-			}else if(inputEleType = "text")
-			{
-				inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
-				if (inputEleLoginboxElemValue = "emailInput")
-				{
-					;MsgBox "Find input pwd"
-					inputEle.focus()
-					inputEle.click()
-					Sleep 500
-					inputEle.value := loginName
-					Sleep 2000
-					inputAccount := True
-				}
-			}
-			if(inputAccount && inputPwd)
-			{
-				break
-			}
-		}
-		if(inputAccount && inputPwd)
-		{
-			;login press enter
-			ahrefs := secureIndexPage.document.getElementsByTagName("a")
-			if (ahrefs)
-			{
-				length := ahrefs.length
-				Loop % length
-				{
-					ahref := ahrefs[A_Index -1]
-					ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
-					if (ahrefEleLoginboxElemValue = "loginBtn")
-					{
-						ahref.focus()
-						ahref.click()
-						Sleep 3000
-						IEDomWait(secureIndexPage)
-						userNmae := document.getElementById("top-username").innerHTML
-						if (userName && StrLen(userName) > 0)
-						{
-							return True
-						}						
-						break
-					}
-				}
-			}
-		}
+;~ ^u::
+;~ {
+	;~ loginWb := IEDomGetByUrl("http://passport.iqiyi.com/user/login.php")
+	;~ ;"13693243521", "1470-=p[]\l;'")
+	;~ loginPwd := "1470-=p[]\l;'"
+	;~ loginName := "13693243521"
+	;~ if loginWb
+	;~ {
+		;~ MsgBox % (loginWb.document.body.innerHTML)
+	;~ }
+	;~ secureIndexPage := IEDomGetByUrl("http://passport.iqiyi.com/pages/secure/index.action")
+	;~ if secureIndexPage
+	;~ {
+		;~ ;MsgBox % (secureIndexPage.document.body.innerHTML)
+		;~ inputElements := secureIndexPage.document.getElementsByTagName("input")
+		;~ length := inputElements.length
+		;~ inputAccount := False
+		;~ inputPwd := False		
+		;~ Loop % length
+		;~ {
+			;~ inputEle := inputElements[A_Index-1]
+			;~ ;MsgBox % inputEle.classname
+			;~ ;MsgBox % (inputEle.getAttribute("type"))
+			;~ inputEleType := inputEle.getAttribute("type")
+			;~ if (inputEleType = "password")
+			;~ {
+				;~ inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
+				;~ if (inputEleLoginboxElemValue = "passwdInput")
+				;~ {
+					;~ ;MsgBox "Find input pwd"
+					;~ inputEle.focus()
+					;~ inputEle.click()
+					;~ Sleep 500
+					;~ inputEle.value := loginPwd
+					;~ Sleep 2000
+					;~ inputPwd := True
+				;~ }
+			;~ }else if(inputEleType = "text")
+			;~ {
+				;~ inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
+				;~ if (inputEleLoginboxElemValue = "emailInput")
+				;~ {
+					;~ ;MsgBox "Find input pwd"
+					;~ inputEle.focus()
+					;~ inputEle.click()
+					;~ Sleep 500
+					;~ inputEle.value := loginName
+					;~ Sleep 2000
+					;~ inputAccount := True
+				;~ }
+			;~ }
+			;~ if(inputAccount && inputPwd)
+			;~ {
+				;~ break
+			;~ }
+		;~ }
+		;~ if(inputAccount && inputPwd)
+		;~ {
+			;~ ;login press enter
+			;~ ahrefs := secureIndexPage.document.getElementsByTagName("a")
+			;~ if (ahrefs)
+			;~ {
+				;~ length := ahrefs.length
+				;~ Loop % length
+				;~ {
+					;~ ahref := ahrefs[A_Index -1]
+					;~ ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
+					;~ if (ahrefEleLoginboxElemValue = "loginBtn")
+					;~ {
+						;~ ahref.focus()
+						;~ ahref.click()
+						;~ Sleep 3000
+						;~ IEDomWait(secureIndexPage)
+						;~ userNmae := document.getElementById("top-username").innerHTML
+						;~ if (userName && StrLen(userName) > 0)
+						;~ {
+							;~ return True
+						;~ }						
+						;~ break
+					;~ }
+				;~ }
+			;~ }
+		;~ }
 		
-	}
+	;~ }
 
-	ExitApp
-}
+	;~ ExitApp
+;~ }
 
 SetInputEleValue(inputEle, value)
 {
@@ -101,10 +101,12 @@ SetInputEleValue(inputEle, value)
 		Sleep 500
 		inputEle.value := value
 		Sleep 2000
-		return True
+		return true
 	}
 	catch
-	{return False}
+	{
+		return false
+	}
 }
 
 IEDomGetByUrl(searchUrl)
@@ -128,7 +130,7 @@ IEDomGetByUrl(searchUrl)
 		}
 	}
 }
-IEDomGet(Name="") ;Retrieve pointer to existing IE window/tab
+IEDomGet(Name = "") ;Retrieve pointer to existing IE window/tab
 {
     IfEqual, Name,, WinGetTitle, Name, ahk_class IEFrame
 	Name := ( Name="New Tab - Windows Internet Explorer" ) ? "about:Tabs"
@@ -169,6 +171,38 @@ IEDomWait(wb)
 		Sleep 100
 }
 
+;display menu bar
+settingIe()
+{
+	baiduHomepageWb := gotoUrl("https://www.baidu.com")
+	if (!baiduHomepageWb)
+	{
+		return false
+	}
+	;ÊÕ²Ø¼Ð
+	hiddenIEBar(baiduHomepageWb, "A")
+	Sleep 1000
+	;²Ëµ¥À¸
+	hiddenIEBar(baiduHomepageWb, "E")
+	Sleep 1000
+	;ÃüÁîÀ¸
+	hiddenIEBar(baiduHomepageWb, "O")
+	Sleep 1000
+	baiduHomepageWb.quit
+}
+
+
+gotoUrl(url)
+{
+	homePageWb := ComObjCreate("InternetExplorer.Application") ;create a IE instance
+	homePageWb.Visible := True
+	homePageWb.Navigate(url)
+	WinMaximize, % "ahk_id " homePageWb.HWND
+	Sleep 200
+	IEDomWait(homePageWb)	
+	return homePageWb
+}
+
 hiddenIEBar(wb, keystore)
 {
 	pWin := wb.Document.ParentWindow
@@ -179,17 +213,48 @@ hiddenIEBar(wb, keystore)
 	Send {%keystore%}
 	Sleep 1000
 	afterClickTop := pWin.screenTop
-	MsgBox % "Before move top:" (preTop) ", after move Top:" (afterClickTop)
+	;MsgBox % "Before move top:" (preTop) ", after move Top:" (afterClickTop)
 	if (afterClickTop > preTop)
 	{
-		MsgBox "Show menu bar hidding it"
+		;MsgBox "Show menu bar hidding it"
 		MouseClick Right
 		Sleep 1000
 		Send {%keystore%}
 		Sleep 1000
 	}
-	else
+}
+
+closePreIe()
+{
+	; Close all windows (open/minimized, browsers) but not pwr off
+	WinGet, id, list,,, Program Manager
+	Loop, %id%
 	{
-			MsgBox "Hidden menu bar"
-	}		
+		this_id := id%A_Index% 
+		;WinActivate, ahk_id %this_id%
+		WinGetClass, this_class, ahk_id %this_id%
+		;WinGetTitle, this_title, ahk_id %this_id%
+		;MsgBox % "Class:" (this_class) ", Title:" (this_title)
+		if (this_class = "IEFrame")
+		{
+			WinClose, ahk_id %this_id%;
+		}
+		;If(this_class != "Shell_traywnd") && (this_class != "Button")  ; If class is not Shell_traywnd and not Button
+		;	WinClose, ahk_id %this_id% ;This is what it should be ;MsgBox, This ahk_id %this_id% ; Easier to test ;)
+	}
+}
+
+closeWb(wb, last = false){
+	if wb
+	{
+		try
+		{
+			wb.quit
+			if !last
+			{
+				Sleep 2000
+			}
+		}
+		catch{}
+	}
 }
