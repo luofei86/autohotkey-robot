@@ -1,38 +1,88 @@
 ﻿;~ #Include tour/GetBroswerUrl.ahk
 
+#Include Iqiyi.ahk
 #Include IqiyiAccount.ahk
+#Include ServerApi.ahk
+#Include LoggerUtils.ahk
 ;wb := ComObjCreate("InternetExplorer.Application")
 ;wb.Visible := True
 ;wb.Navigate("http://iqiyi.com")
 
-closePreIe()
 
 ;;;screen Resolution
 WinGetPos,,, desk_width, desk_height, Program Manager
 ;MsgBox % "Desk width:" (desk_width) ", Desk height:" (desk_height)
 
-homeUrl := "http://www.iqiyi.com/"
-;homeUrl := "about:tabs"
-;homePageWb := gotoHomepage("about:tabs")
-homepageWb := gotoHomepage(homeUrl)
-;homePageWb := IEGetByUrl(homeUrl)
-if !homepageWb
+^q::
 {
+	logInfo("The user press ctrl+q, the app exit")
+	closePreIe()
 	ExitApp
 }
-;Sleep 5000
-;print pos
-;MsgBox % homePageWb.document.innerHTML
-;hidden menubar
-;hiddenIeBar(homepageWb, "m")
-;hidden favriote bar
-;hiddenIeBar(homepageWb, "a")
+Loop
+{
+	try{
+		;;clear the env
+		closePreIe()
+		;setting
+		settingIe()
+		Sleep 1000
+		;;check the env
+		
+		;;;是否可以上网
+		
+		;;get task
+		remoteTaskInfo := getRemotTaskInfo()
+		taskLength := remoteTaskInfo.tasks.length
+		if (taskLength = 0)
+		{
+			;current no task
+			;Sleep 30 seconds
+			SleepBeforeNextLoop()
+			continue
+		}
+		;login first
+		homepageWb := gotoHomepage()
+		if !homepageWb
+		{
+			logError("Load the iqiyi homepage failed.")
+			SleepBeforeNextLoop()
+			continue
+		}
+		Sleep 1000
+		logInfo("Logout the iqiyi account.")
+		logoutFromHomepage(homepageWb)
+		Sleep 2000
+		accountName := remoteTaskInfo.accountName
+		accountPwd := remoteTaskInfo.accountPwd
+		accountLoginInfo := loginFromHomepage(homepageWb, accountName, accountPwd)
+		if !accountLoginInfo.result
+		{
+			reportAccountLoginInfo(remoteTaskInfo.accountId, accountLoginInfo.result, accountLoginInfo.info)
+			SleepBeforeNextLoop()
+			continue
+		}
+		logInfo("Logined the iqiyi account.")
+		
+		fuzzyUserRandomAccessWebsite(homepageWb)
+		
+		
+				;play video
+		Loop % taskLength
+		{
+		}
+		;restart the route
+		
+	}catch{
+		
+	}
+}
 
-MsgBox "Login out"
-logoutFromHomepage(homepageWb)
+SleepBeforeNextLoop()
+{
+	try{Sleep 30000}catch{}
+}
 
-MsgBox "Start login" 
-loginFromHomepage(homepageWb, "13693243521", "1470-=p[]\l;'")
 
 ^q::
 	closeWb(homepageWb, True)

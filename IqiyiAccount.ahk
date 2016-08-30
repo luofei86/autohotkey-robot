@@ -1,6 +1,7 @@
 ;iqiyi account login logout
 
 #Include IqiyiVcode.ahk
+#Include IEDomUtils.ahk
 
 ;pop logout
 ;~ <div class="nav-login-info nav-login-info-new" id="nav-login-info">
@@ -28,12 +29,12 @@ logoutFromHomepage(homepageWb)
 {
 	if (homepageWb)
 	{
-		userLoginDiv := getUserLoginedDiv(homepageWb)
+		userLoginedDiv := getUserLoginedDiv(homepageWb)
 		
-		if (userLoginDiv)
+		if (userLoginedDiv)
 		{
 			MsgBox "Find log out div"
-			userLoginDiv.click()
+			userLoginedDiv.click()
 			popDiv := homepageWb.document.getElementById("nav-login-info")
 			if (popDiv)
 			{
@@ -71,6 +72,67 @@ isLogout(homepageWb)
 		return False
 	}
 }
+;login http://passport.iqiyi.com/pages/secure/index.action
+loginFromSecureIndexPage(secureIndexPage, loginName, loginPwd)
+{	
+	;MsgBox % (secureIndexPage.document.body.innerHTML)
+	inputElements := secureIndexPage.document.getElementsByTagName("input")
+	length := inputElements.length
+	inputAccount := False
+	inputPwd := False		
+	Loop % length
+	{
+		inputEle := inputElements[A_Index-1]
+		inputEleType := inputEle.getAttribute("type")
+		if (inputEleType = "password")
+		{
+			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
+			if (inputEleLoginboxElemValue = "passwdInput")
+			{
+				inputPwd := SetInputEleValue(inputEle, loginPwd)
+			}
+		}else if(inputEleType = "text")
+		{
+			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
+			if (inputEleLoginboxElemValue = "emailInput")
+			{
+				inputAccount := SetInputEleValue(inputEle, loginName)
+			}
+		}
+		if(inputAccount && inputPwd)
+		{
+			break
+		}
+	}
+	if(inputAccount && inputPwd)
+	{
+		;login press enter
+		ahrefs := secureIndexPage.document.getElementsByTagName("a")
+		if (ahrefs)
+		{
+			length := ahrefs.length
+			Loop % length
+			{
+				ahref := ahrefs[A_Index -1]
+				ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
+				if (ahrefEleLoginboxElemValue = "loginBtn")
+				{
+					ahref.focus()
+					ahref.click()
+					Sleep 3000
+					IEDomWait(secureIndexPage)
+					userNmae := document.getElementById("top-username").innerHTML
+					if (userName && StrLen(userName) > 0)
+					{
+						return True
+					}						
+					break
+				}
+			}
+		}
+	}
+	return False
+}
 
 loginFromHomepage(homepageWb, loginName, loginPwd)
 {
@@ -80,9 +142,25 @@ loginFromHomepage(homepageWb, loginName, loginPwd)
 		homepageWb.document.getElementById("widget-userregistlogin").getElementsByTagName("div")[3].getElementsByTagName("div")[0].getElementsByTagName("a")[0].click()
 		Sleep 2000
 		popLoginDiv := homepageWb.document.getElementById("qipaLoginIfr")
-		if popLoginDiv
+		Sleep 1000
+		if(popLoginDiv)
 		{
 			loginByPopDiv(homepageWb, loginName, loginPwd)
+		}else{
+			;open login page
+			;url like http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F or 
+			;url like http://passport.iqiyi.com/pages/secure/index.action
+			secureIndexPage := IEDomGetByUrl("http://passport.iqiyi.com/pages/secure/index.action")
+			if (secureIndexPage)
+			{
+				logined := loginFromSecureIndexPage(secureIndexPage, loginName, loginPwd)
+				if(logined)
+				{
+					
+				}
+			}
+			
+			
 		}
 		Sleep 1000
 	}

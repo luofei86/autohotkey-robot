@@ -28,7 +28,7 @@ saveVcodeImg()
 	Send {s}
 	Sleep 500
 	fileName := % A_Now
-	Send {%fileName%}
+	Send %fileName%
 	Sleep 500
 	Send {Enter}
 	Sleep 500
