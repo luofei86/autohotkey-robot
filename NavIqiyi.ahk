@@ -83,10 +83,6 @@ SleepBeforeNextLoop()
 	try{Sleep 30000}catch{}
 }
 
-
-^q::
-	closeWb(homepageWb, True)
-ExitApp
 ;~ ^q::
 	;~ homepageWb.quit
 
@@ -129,7 +125,7 @@ else
 }
 ExitApp
 
-hiddenIeBar(wb, keystore)
+hiddenIEBar(wb, keystore)
 {
 	pWin := wb.Document.ParentWindow
 	;~ for k, v in pWin
