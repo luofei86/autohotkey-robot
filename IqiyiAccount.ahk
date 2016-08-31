@@ -1,4 +1,4 @@
-;iqiyi account login logout
+﻿;iqiyi account login logout
 
 #Include IqiyiVcode.ahk
 #Include IEDomUtils.ahk
@@ -29,15 +29,21 @@ IqiyiAccoountHadAccountLogged(homepageWb)
 {
 	try{
 		return (StrLen(homepageWb.document.getElementById("top-username").innerHTML) > 0)
-	}catch{}
+	}
+	catch
+	{
+	}
 	return false
-
 }
 IqiyiAccoountIsCurrentLoggedAccount(homepageWb, nickname)
 {
 	try{
-		return homepageWb.document.getElementById("top-username").innerHTML = nickname
-	}catch{}
+		pageNickname := homepageWb.document.getElementById("top-username").innerHTML
+		return pageNickname = nickname
+	}
+	catch
+	{
+	}
 	return false
 }
 IqiyiLogoutFromHomepage(homepageWb)
@@ -48,7 +54,7 @@ IqiyiLogoutFromHomepage(homepageWb)
 		
 		if (userLoginedDiv)
 		{
-			MsgBox "Find log out div"
+			;MsgBox "Find log out div"
 			userLoginedDiv.click()
 			popDiv := homepageWb.document.getElementById("nav-login-info")
 			if (popDiv)
@@ -79,9 +85,22 @@ getUserLoginedDiv(homepageWb)
 isLogout(homepageWb)
 {
 	try{
-		loginText := homepageWb.document.getElementById("widget-userregistlogin").getElementsByTagName("div")[3].getElementsByTagName("div")[0].getElementsByTagName("a")[0].innerHTML
-		MsgBox % loginText
-		return loginText = "��¼"
+		widghtUserRegistLoginDiv := homepageWb.document.getElementById("widget-userregistlogin")		
+		ahrefs := widghtUserRegistLoginDiv.getElementsByTagName("a")
+		if (ahrefs)
+		{
+			length := ahrefs.length
+			Loop % length
+			{
+				ahref := ahrefs[A_Index -1]
+				ahrefEleLoginboxElemValue := ahref.getAttribute("data-elem")
+				if (ahrefEleLoginboxElemValue = "topLoginPanel")
+				{
+					innerHTML := ahref.innerHTML
+					return loginText = "登录"
+				}
+			}
+		}
 	}catch
 	{
 		return False
@@ -153,14 +172,14 @@ loginFromHomepage(homepageWb, loginName, loginPwd)
 {
 	if (homepageWb)
 	{
-		MsgBox "Pop login div"
+		;MsgBox "Pop login div"
 		homepageWb.document.getElementById("widget-userregistlogin").getElementsByTagName("div")[3].getElementsByTagName("div")[0].getElementsByTagName("a")[0].click()
 		Sleep 2000
 		popLoginDiv := homepageWb.document.getElementById("qipaLoginIfr")
 		Sleep 1000
 		if(popLoginDiv)
 		{
-			loginByPopDiv(homepageWb, loginName, loginPwd)
+			return loginByPopDiv(homepageWb, loginName, loginPwd)
 		}else{
 			;open login page
 			;url like http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F or 
@@ -173,6 +192,9 @@ loginFromHomepage(homepageWb, loginName, loginPwd)
 				{
 					
 				}
+			}
+			else
+			{
 			}
 			
 			
@@ -189,46 +211,95 @@ loginByLoginPage()
 
 loginByPopDiv(homepageWb, loginName, loginPwd)
 {
-		
+	accountLoginInfo.result := false
+	accountLoginInfo.info := ""
 	;######
-	homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[0].getElementsByTagName("input")[0].focus()
-	Sleep 200
-	homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[0].getElementsByTagName("input")[0].click()
-	Sleep 200
-	homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[0].getElementsByTagName("input")[0].value := loginName
-
-	Sleep 2000
-	SetKeyDelay, 500
-	Send {Tab}
-
-	homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[1].getElementsByTagName("input")[1].focus()
-	homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0].getElementsByTagName("div")[1].getElementsByTagName("input")[1].value := loginPwd
+	qipaLoginIfrDiv := homepageWb.document.getElementById("qipaLoginIfr")
+	
+	inputEles := qipaLoginIfrDiv.getElementsByTagName("input")
+	inputElesLength := inputEles.length
+	inputAccount := false
+	inputPwd := false
+	Loop % inputElesLength
+	{
+		inputEle := inputEles[A_Index - 1]
+		inputEleType := inputEle.getAttribute("type")
+		if (inputEleType = "password")
+		{
+			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
+			if (inputEleLoginboxElemValue = "passwdInput")
+			{
+				inputPwd := SetInputEleValue(inputEle, loginPwd)
+			}
+		}
+		else if(inputEleType = "text")
+		{
+			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
+			if (inputEleLoginboxElemValue = "emailInput")
+			{
+				inputAccount := SetInputEleValue(inputEle, loginName)
+			}
+		}
+		if(inputAccount && inputPwd)
+		{
+			break
+		}
+	}
+	
 	Sleep 200
 	vcodeExists := ExistsVcode(homepageWb)
 	if (vcodeExists)
 	{
-		enterVcode(homepageWb)		
-		Return
+		enterVcode(homepageWb)
 	}
-	else
-	{	
-		;MsgBox "No pic code"
-		Send {Enter}
-	}
-	;;;;login
-	Sleep 2000
-	;find logined
-	if (getUserLoginedDiv(homepageWb))
-		return True
-	if (!vcodeExists)
+	;login
+	ahrefs := qipaLoginIfrDiv.getElementsByTagName("a")
+	if (ahrefs)
 	{
-		if (ExistsVcode(homepageWb))
+		ahrefsLength := ahrefs.length
+		Loop % ahrefsLength
 		{
-			enterVcode(homepageWb)
-			return getUserLoginedDiv(homepageWb)
+			ahref := ahrefs[A_Index -1]
+			ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
+			if (ahrefEleLoginboxElemValue = "loginBtn")
+			{
+				ahref.focus()
+				ahref.click()
+				Sleep 5000
+			}
 		}
 	}
-	return False
+	else
+	{
+		accountLoginInfo.info := "The pop login div dose not find the login btn to click."
+		logError("The pop login div dose not find the login btn to click.")
+		return accountLoginInfo
+	}
+	userName := homepageWb.document.getElementById("top-username").innerHTML
+	if (userName && StrLen(userName) > 0)
+	{
+		accountLoginInfo.result := true
+		return accountLoginInfo
+	}
+	qipaLoginIfrDiv := homepageWb.document.getElementById("qipaLoginIfr")
+	if (qipaLoginIfrDiv)
+	{
+		;没有登录，需要输入二维码
+		vcodeExists := ExistsVcode(homepageWb)
+		if (vcodeExists)
+		{
+			enterVcode(homepageWb)
+		}
+	}
+	Sleep 5000	
+	userName := homepageWb.document.getElementById("top-username").innerHTML
+	if (userName && StrLen(userName) > 0)
+	{
+		accountLoginInfo.result := true
+		return accountLoginInfo
+	}
+	accountLoginInfo.info := "Login by pop login div failed."
+	return accountLoginInfo
 }
 
 
@@ -247,7 +318,7 @@ ExistsVcode(homepageWb)
 			images := spans[1].getElementsByTagName("img")
 			if (images && images.length >0)
 			{
-				Return True
+				return true
 			}			
 		}
 	}

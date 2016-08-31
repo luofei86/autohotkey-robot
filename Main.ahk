@@ -20,7 +20,7 @@ Loop
 {
 	try{
 		remoteTaskInfo := ServerApiGetRemoteTaskInfo()
-		taskLength := remoteTaskInfo.tasks.length
+		taskLength := remoteTaskInfo.tasks.MaxIndex()
 		if (taskLength = 0)
 		{
 			;current no task
@@ -35,12 +35,10 @@ Loop
 		;;clear the env
 		closePreIe()
 		;setting
-		settingIe()
-		Sleep 1000
+		;settingIe()
+		;Sleep 1000
 		;;check the env
-		
-		;;;是否可以上网
-		
+			
 		;;get task
 		
 		;login first
@@ -58,7 +56,7 @@ Loop
 		
 		if (logged)
 		{
-			accountLogged := IqiyiAccoountIsCurrentLoggedAccount(homepageWwb, account.nickname)
+			accountLogged := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
 			if (!accountLogged)
 			{
 				IqiyiLogoutFromHomepage(homepageWb)
@@ -77,9 +75,13 @@ Loop
 		}		
 		logInfo("Logined the iqiyi account.")
 		;play video
+		tasks := remoteTaskInfo.tasks
+		;MsgBox , % (tasks[0])
+		;MsgBox , % (tasks[1])
 		Loop % taskLength
 		{
-			taskInfo := remoteTaskInfo.tasks[A_Index]
+			
+			taskInfo := tasks[A_Index]
 			;fuzzyUserRandomAccessWebsite(homepageWb)
 			searchKeyword := taskInfo.searchKeyword
 			;searchUrl := "http://www.iqiyi.com/v_19rrlxsds8.html"
@@ -110,7 +112,9 @@ Loop
 		}
 		;restart the route
 		
-	}catch{
+	}
+	catch
+	{
 		
 	}
 }

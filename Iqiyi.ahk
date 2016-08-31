@@ -59,9 +59,17 @@ doSearch(homePageWb, searchKeyword)
 	searchInput.value := searchKeyword
 	Sleep 1000
 	;searchForm.submit()
-	Send {Enter}
-	;MsgBox "Enter to search"
-	Sleep 1000
+	inputEles := searchForm.getElementsByTagName("input")
+	inputEle := IEDomUtilsFindElements(inputEles, "type", "button", "rseat", "tj_serch")
+	if inputEle
+	{
+		inputEle.focus()
+		inputEle.click()
+		Sleep 1000
+	}
+	else{
+		logError("No search button find in home page")
+	}
 }
 
 

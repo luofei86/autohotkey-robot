@@ -171,6 +171,40 @@ IEDomWait(wb)
 		Sleep 100
 }
 
+IEDomUtilsFindElement(eles, attrName, attrValue)
+{
+	length := eles.length
+	Loop % length
+	{
+		ele := eles[A_Index-1]
+		if (IEDomUtilsEleHasSameAttr(ele, attrName, attrValue))
+		{
+			return ele
+		}
+	}
+}
+IEDomUtilsEleHasSameAttr(ele, attrName, attrValue)
+{
+	inputEleType := ele.getAttribute(attrName)
+	return inputEleType = attrValue
+}
+
+IEDomUtilsFindElements(eles, attrName0, attrValue0, attrName1, attrValue1)
+{
+	length := eles.length
+	Loop % length
+	{
+		ele := eles[A_Index-1]
+		if(IEDomUtilsEleHasSameAttr(ele, attrName0, attrValue0))
+		{
+			if(IEDomUtilsEleHasSameAttr(ele, attrName1, attrValue1))
+			{
+				return ele
+			}
+		}
+	}
+}
+
 ;display menu bar
 settingIe()
 {
@@ -187,6 +221,9 @@ settingIe()
 	Sleep 1000
 	;√¸¡Ó¿∏
 	hiddenIEBar(baiduHomepageWb, "O")
+	Sleep 1000
+	;√¸¡Ó¿∏
+	hiddenIEBar(baiduHomepageWb, "C")
 	Sleep 1000
 	baiduHomepageWb.quit
 }
