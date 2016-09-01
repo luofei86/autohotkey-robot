@@ -26,3 +26,19 @@ moveToPos(left, top)
 	;MsgBox % "Moves X:" (mouseMoveX) ",Y:" (mouseMoveY)
 	MouseMove, mouseMoveX, mouseMoveY, 50, R
 }
+
+moveToPosWithBottom(ele, pWin)
+{
+	MouseGetPos, xpos, ypos
+	pos := findPos(ele)
+	;MsgBox % "bottom:" (pos.bottom) ", left:" (pos.left) ", top:" (pos.top)
+	;MsgBox , % A_ScreenHeight
+	mouseGoToX := pos.left + pWin.screenLeft  + 30
+	mouseGoToY := pos.bottom + + pos.top -5
+	mouseMoveX := mouseGoToX - xpos
+	mouseMoveY := (mouseGoToY - ypos)
+	;MsgBox, % "Move x:" (mouseMoveX) ", Move Y:" (mouseMoveY)
+	MouseMove, mouseMoveX, mouseMoveY, 50, R
+	MouseClick, left
+	Sleep 1000
+}

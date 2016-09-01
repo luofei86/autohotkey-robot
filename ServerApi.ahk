@@ -46,20 +46,38 @@ _initTasks()
 	task.id := 1
 	task.searchKeyword := "冠军来了"
 	task.searchUrl := "http://www.iqiyi.com/v_19rrlll2k4.html"
-	task.videoTimes := 60000
+	task.videoTimes := 20000
 	tasks.Insert(task)
 	
 	task := {}
 	task.id := 2
 	task.searchKeyword := "冠军来了"
 	task.searchUrl := "http://www.iqiyi.com/v_19rrlgel20.html"
-	task.videoTimes := 60000
+	task.videoTimes := 20000
 	tasks.Insert(task)	
 	task := {}
 	task.id := 3
 	task.searchKeyword := "冠军来了"
 	task.searchUrl := "http://www.iqiyi.com/v_19rrlxs0e8.html"
-	task.videoTimes := 60000
+	task.videoTimes := 20000
+	tasks.Insert(task)	
+	task := {}
+	task.id := 4
+	task.searchKeyword := "冠军来了"
+	task.searchUrl := "http://www.iqiyi.com/v_19rrleefds.html"
+	task.videoTimes := 20000
+	tasks.Insert(task)	
+	task := {}
+	task.id := 5
+	task.searchKeyword := "冠军来了"
+	task.searchUrl := "http://www.iqiyi.com/v_19rrlsezm8.html"
+	task.videoTimes := 20000
+	tasks.Insert(task)	
+	task := {}
+	task.id := 6
+	task.searchKeyword := "冠军来了"
+	task.searchUrl := "http://www.iqiyi.com/v_19rrm66xrc.html"
+	task.videoTimes := 20000
 	tasks.Insert(task)
 	return tasks
 }

@@ -109,6 +109,31 @@ SetInputEleValue(inputEle, value)
 	}
 }
 
+closeIEDomExcludiveHomepage(homepageWb)
+{
+	if (!homepageWb)
+	{
+		return
+	}
+	homepageWbHwnd := homepageWb.HWND
+	For wb in ComObjCreate( "Shell.Application" ).Windows
+	{
+		if InStr(wb.FullName, "iexplore.exe" )
+		{
+			try
+			{
+				curHwnd := wb.HWND
+				if(curHwnd != homepageWbHwnd)
+				{
+					closeWb(wb)
+				}
+			}
+			catch e
+			{}
+		}
+	}	
+}
+
 IEDomGetByUrl(searchUrl)
 {
     For wb in ComObjCreate( "Shell.Application" ).Windows
@@ -130,23 +155,52 @@ IEDomGetByUrl(searchUrl)
 		}
 	}
 }
-IEDomGet(Name = "") ;Retrieve pointer to existing IE window/tab
+
+IEDomGet(name = "") ;Retrieve pointer to existing IE window/tab
 {
-    IfEqual, Name,, WinGetTitle, Name, ahk_class IEFrame
-	Name := ( Name="New Tab - Windows Internet Explorer" ) ? "about:Tabs"
-        : RegExReplace( Name, " - (Windows|Microsoft) Internet Explorer" )
+    IfEqual, name,, WinGetTitle, name, ahk_class IEFrame
+	name := ( name = "New Tab - Windows Internet Explorer" ) ? "about:Tabs"
+        : RegExReplace( name, " - (Windows|Microsoft) Internet Explorer" )
     For wb in ComObjCreate( "Shell.Application" ).Windows
 	{
 		if (InStr(wb.FullName, "iexplore.exe" ))
 		{
-			IEDomWait(wb)
-			if (wb.LocationName = Name || InStr(wb.LocationName, Name))
+			url := getIEDomLocationUrl(wb)
+			locationName := getIEDomLocationName(wb)
+			logInfo("Find dom by name:" . name . ", Current loop wb url:" . url . ", location name:" . locationName)
+			if(StrLen(locationName) = 0)
 			{
-				Return wb
+				continue
 			}
-		}
-		
+			IEDomWait(wb)
+			if (locationName = name || InStr(locationName, name))
+			{				
+				return wb
+			}
+		}		
 	}
+}
+
+getIEDomLocationName(wb)
+{
+	try
+	{
+		return wb.LocationName
+	}
+	catch
+	{
+	}	
+}
+
+getIEDomLocationUrl(wb)
+{
+	try
+	{
+		return wb.document.URL
+	}
+	catch
+	{
+	}	
 }
 
 IEDomLoad(wb)    ;You need to send the IE handle to the function unless you define it as global.
@@ -165,43 +219,52 @@ IEDomLoad(wb)    ;You need to send the IE handle to the function unless you defi
 	Return True
 }
 
-IEDomWait(wb)
-{
-	while(wb.ReadyState !=4) or (wb.busy)
-		Sleep 100
-}
-
-IEDomUtilsFindElement(eles, attrName, attrValue)
+findIEElementByTwoAttr(eles, attrName0, attrValue0,  attrName1, attrValue1)
 {
 	length := eles.length
 	Loop % length
 	{
 		ele := eles[A_Index-1]
-		if (IEDomUtilsEleHasSameAttr(ele, attrName, attrValue))
+		if(eleAttrEquals(ele, attrName0, attrValue0) and eleAttrEquals(ele, attrName1, attrValue1))
 		{
 			return ele
 		}
 	}
 }
-IEDomUtilsEleHasSameAttr(ele, attrName, attrValue)
+
+findIEElementInDom(wb, eleId)
 {
-	inputEleType := ele.getAttribute(attrName)
-	return inputEleType = attrValue
+	if wb
+	{
+		return wb.document.getElementById(eleId)
+	}
 }
 
-IEDomUtilsFindElements(eles, attrName0, attrValue0, attrName1, attrValue1)
+findIEElement(eles, attrName, attrValue)
 {
 	length := eles.length
 	Loop % length
 	{
 		ele := eles[A_Index-1]
-		if(IEDomUtilsEleHasSameAttr(ele, attrName0, attrValue0))
+		if(eleAttrEquals(ele, attrName, attrValue))
 		{
-			if(IEDomUtilsEleHasSameAttr(ele, attrName1, attrValue1))
-			{
-				return ele
-			}
+			return ele
 		}
+	}
+}
+
+eleAttrEquals(ele, attrName, attrValue)
+{
+	return ele.getAttribute(attrName) = attrValue
+}
+
+IEDomWait(wb)
+{
+	loops := 0
+	while(((wb.ReadyState !=4) or (wb.busy)) and loops < 100)
+	{
+		Sleep 100
+		loops := loops + 1
 	}
 }
 
@@ -222,9 +285,6 @@ settingIe()
 	;ÃüÁîÀ¸
 	hiddenIEBar(baiduHomepageWb, "O")
 	Sleep 1000
-	;ÃüÁîÀ¸
-	hiddenIEBar(baiduHomepageWb, "C")
-	Sleep 1000
 	baiduHomepageWb.quit
 }
 
@@ -232,12 +292,20 @@ settingIe()
 gotoUrl(url)
 {
 	homePageWb := ComObjCreate("InternetExplorer.Application") ;create a IE instance
-	homePageWb.Visible := True
+	homePageWb.Visible := true
 	homePageWb.Navigate(url)
-	WinMaximize, % "ahk_id " homePageWb.HWND
 	Sleep 200
 	IEDomWait(homePageWb)	
+	WinMaximize, % "ahk_id " homePageWb.HWND
+	Sleep 1000
 	return homePageWb
+}
+
+IEPageActive(wb)
+{
+	WinShow, % "ahk_id " wb.HWND
+	WinActivate, % "ahk_id " wb.HWND
+	wb.Visible := true
 }
 
 hiddenIEBar(wb, keystore)

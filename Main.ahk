@@ -50,30 +50,32 @@ Loop
 			continue
 		}
 		Sleep 1000
-		logInfo("Logout the iqiyi account.")
+		logInfo("Get the iqiyi homepage account login status.")
 		logged := IqiyiAccoountHadAccountLogged(homepageWb)
-		accountLogged := false
-		
+		accountLogged := false		
 		if (logged)
 		{
 			accountLogged := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
 			if (!accountLogged)
 			{
+				logInfo("Logout from the homepage. Pre logined account dose not equal current account." . account.accountName)
 				IqiyiLogoutFromHomepage(homepageWb)
 				Sleep 2000
 			}
 		}
 		if (!accountLogged)
 		{
+			logInfo("Login from the homepage.")
 			accountLoginInfo := loginFromHomepage(homepageWb, accountName, accountPwd)
 			if (!accountLoginInfo.result)
 			{
+				logError("Failed to login from the homepage.")
 				reportAccountLoginInfo(accountId, accountLoginInfo.result, accountLoginInfo.info)
 				SleepBeforeNextLoop()
 				continue
 			}
 		}		
-		logInfo("Logined the iqiyi account.")
+		logInfo("Logined the iqiyi account:" . accountName)
 		;play video
 		tasks := remoteTaskInfo.tasks
 		;MsgBox , % (tasks[0])
@@ -87,15 +89,21 @@ Loop
 			;searchUrl := "http://www.iqiyi.com/v_19rrlxsds8.html"
 			searchUrl := taskInfo.searchUrl
 			videoTimes := taskInfo.videoTimes
+			IEPageActive(homepageWb)
 			searchWb := gotoSearchPage(homepageWb, searchKeyword)
+			logInfo("Loop the video:" . searchUrl)
 			if !searchWb
 			{
+				logError("Loop the video:" . searchUrl . ", but dose not found by the searchKeyword:" . searchKeyword)
+				closeIEDomExcludiveHomepage(homepageWb)
 				continue
 			}
+			IEPageActive(searchWb)			
+			logInfo("Click to the search url page:" . searchUrl)
 			findResult := clickToSearchUrlPage(searchWb, searchUrl)
 			
 			;MsgBox "FIND SEARCH RESULT AND CLICK IT."
-			findResult := clickToSearchUrlPage(searchWb, searchUrl)
+			;findResult := clickToSearchUrlPage(searchWb, searchUrl)
 			;wb.quit
 			if findResult
 			{
@@ -103,15 +111,23 @@ Loop
 				if videoWb
 				{
 					startAndWaitVideoPlayFinished(videoWb, videoTimes)
+					logInfo("Finished play the video at video page:" . searchUrl)					
+					IEPageActive(videoWb)
+					Sleep 500
+					logInfo("Close video page:" . searchUrl)
+					closeWb(videoWb)
+					Sleep 2000
 				}
 			}
 			else
 			{
+				logInfo("Can not find the search url:" . searchUrl . " by search keyword:" . searchKeyword . " in the first search result page.")
 				;goto direct
 			}
 		}
+		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
 		;restart the route
-		
+		restartRoute()
 	}
 	catch
 	{
@@ -126,6 +142,11 @@ Loop
 	logInfo("The user press ctrl+q, the app exit")
 	closePreIe()
 	ExitApp
+}
+
+restartRoute()
+{
+	SleepBeforeNextLoop()
 }
 
 SleepBeforeNextLoop()

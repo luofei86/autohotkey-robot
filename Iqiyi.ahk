@@ -36,19 +36,53 @@ fuzzyUserRandomAccessWebsite(homepageWb)
 gotoSearchPage(homePageWb, searchKeyword)
 {
 	;Search
-
+	logInfo("Start search " . searchKeyword)
 	doSearch(homePageWb, searchKeyword)
-	Sleep 2000
+	Sleep 5000
 	searchWb := IEDomGet(searchKeyword)
 	if !searchWb
 	{
 		;MsgBox "No get Search page"
+		;list all ie page to decide
+		searchWb := deepthFindSearchResultPage(searchKeyword)
+		if(searchWb)
+		{
+			return searchWb
+		}
 		logError("No get Search page by searchword:" . searchKeyword)
 		return
-	}
-	IEDomWait(searchWb)
+	}	
+	logInfo("Get the search:" . searchKeyword . " result page wb.")
+	Sleep 500
 	return searchWb
 }
+
+deepthFindSearchResultPage(searchKeyword) ;Retrieve pointer to existing IE window/tab
+{
+    searchWb := IEDomGetByUrl("http://so.iqiyi.com/so/")
+	searchInputEle := findIEElementInDom(searchWb, "data-widget-searchword")
+	try
+	{
+		if (searchInputEle.value = searchKeyword)
+		{
+			return searchWb
+		}
+	}
+	catch
+	{}
+	eles := searchWb.document.getElementsByTagName("div")
+	searchContentEle := findIEElement(eles, "class", "search_content")
+	try
+	{
+		if (Instr(searchContentEle.innerHTML, searchKeyword))
+		{
+			return searchWb
+		}
+	}
+	catch
+	{}
+}
+
 
 doSearch(homePageWb, searchKeyword)
 {
@@ -56,20 +90,11 @@ doSearch(homePageWb, searchKeyword)
 	searchInput := searchForm.getElementsByTagName("div")[0].getElementsByTagName("span")[0].getElementsByTagName("input")[0]
 	Sleep 1000
 	searchInput.focus()
+	Sleep 500
+	searchInput.click()
 	searchInput.value := searchKeyword
 	Sleep 1000
-	;searchForm.submit()
-	inputEles := searchForm.getElementsByTagName("input")
-	inputEle := IEDomUtilsFindElements(inputEles, "type", "button", "rseat", "tj_serch")
-	if inputEle
-	{
-		inputEle.focus()
-		inputEle.click()
-		Sleep 1000
-	}
-	else{
-		logError("No search button find in home page")
-	}
+	Send {Enter}
 }
 
 
@@ -84,6 +109,7 @@ clickToSearchUrlPage(searchWb, searchUrl)
 		if InStr(href, searchUrl)
 		{
 			anchorLink.click()
+			logInfo("Click to access the search url:" . searchUrl)
 			return true
 		}
 	}
@@ -103,31 +129,24 @@ gotoResultUrlPage(searchUrl)
 
 startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
 {
-	pWin := videoWb.document.parentWindow
 	flashPlayer := videoWb.document.getElementById("flash")
 	if flashPlayer
 	{
-		;~ MouseGetPos, xpos, ypos
-		;~ ;
-		;~ global desk_height
-		;~ ;MsgBox % "Xpos:" (xpos) "Ypos:" (ypos)
-		;~ pos := findPos(flashPlayer)
-		;~ ;MsgBox % "bottom:" (pos.bottom) ", left:" (pos.left) ", top:" (pos.top)
-		;~ mouseGoToX := pos.left + pWin.screenLeft  + 30
-		;~ mouseGoToY := pos.bottom + 20
-		;~ mouseMoveX := mouseGoToX - xpos
-		;~ mouseMoveY := (desk_height - ypos) - mouseGoToY 
-		;~ ;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)
-		;~ ;MsgBox, 0, code img, %	"Left:	"		pos.left + pWin.screenLeft ; left side of element rectagle + left side of screen
-		;~ ;							.	"`nTop:	"		pos.top + pWin.screenTop
-		;~ ;							.	"`nRight:	"	pos.right + pWin.screenLeft
-		;~ ;							.	"`nBottom:	"	pos.bottom + pWin.screenTop
-		;~ MouseMove, mouseMoveX, mouseMoveY, 50, R
-		;~ MouseClick, left
-		;~ Sleep 1000
-		;MouseGetPos, xpos, ypos
-		;MsgBox % "Xpos:" (xpos) "Ypos:" (ypos)
-		Sleep % sleepTimeMis
-		logInfo("Played")
+		paramEles := flashPlayer.getElementsByTagName("param")
+		flashVarsEle := findIEElement(paramEles, "name", "flashVars")
+		if (flashVarsEle)
+		{
+			varValue := flashVarsEle.getAttribute("value")
+			if !InStr(varValue, "autoplay=true")
+			{
+				;move to click play
+				pWin := videoWb.document.parentWindow
+				moveToPosWithBottom(flashPlayer, pWin)
+			}
+				
+		}
+		;moreSleepTimeMis := sleepTimeMis + 60000
+		moreSleepTimeMis := sleepTimeMis + 6000
+		Sleep % moreSleepTimeMis
 	}
 }
