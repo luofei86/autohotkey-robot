@@ -1,0 +1,39 @@
+---获取播放任务接口
+parameter:
+	macAddress:
+return:
+{
+	account:{
+		id:,
+		name:,
+		nickname:,
+		pwd:
+	}
+	tasks:
+	[
+		{
+			id:,
+			searchKeyword:,
+			url:,
+			duration:
+		},
+		{
+			id:,
+			searchKeyword:,
+			url:,
+			duration:
+		},
+	]
+}
+
+----汇报运行状态接口
+parameter:
+  type:[0,1,2,3]0:accountLogin; 1:videoFind; 2:videoPlay;3:accountReturn
+  acctounId:
+  videoId:
+  result:
+  info:
+return:
+  ;nerver handle
+  
+  
