@@ -2,6 +2,10 @@
 #Include MachineUtils.ahk
 #Include LoggerUtils.ahk
 
+taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
+callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
+
+ServerApiGetRemoteTaskInfo()
 
 ServerApiStrRemoteTaskInfo(remoteTaskInfo)
 {
@@ -23,6 +27,14 @@ ServerApiGetRemoteTaskInfo()
 		;accountId;
 		;accountPwd;
 		;tasks
+		;~ global taskUrl
+		;~ requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
+		;~ ;MsgBox , % (requestUrlWithPara)
+		;~ responseInfo := _sendHttpRequest(requestUrlWithPara)
+		;~ MsgBox , % (responseInfo)
+		;~ logDebug(responseInfo)
+		
+		
 		taskInfo := {}
 		taskInfo.account := _initAccount()
 		taskInfo.tasks := _initTasks()
@@ -82,13 +94,43 @@ _initTasks()
 	return tasks
 }
 ;report task finish info to server
-reportTaskFinishInfo(userId, taskId, finishStatus, finishInfo)
+
+reportTaskUUrlFindInfo(accountId, videoId, result, info)
 {
-	
+	global callbackUrl
+	url := callbackUrl . "?type=2&accountId=" . accountId . "&videoId=" . videoId . "&result=" . finishStatus . "&info=" . info
+	_sendHttpRequest(url)
+}
+
+reportTaskFinishInfo(accountId, videoId, result, info)
+{
+	global callbackUrl
+	url := callbackUrl . "?type=1&accountId=" . accountId . "&videoId=" . videoId . "&result=" . result . "&info=" . info
+	_sendHttpRequest(url)
 }
 
 ;
-reportAccountLoginInfo(userId, loginStatus, loginInfo)
+reportAccountLoginInfo(accountId, result, info)
 {
-	
+	global callbackUrl
+	url := callbackUrl . "?type=0&accountId=" . accountId . "&result=" . result . "&info=" . info
+	_sendHttpRequest(url)
+}
+;returnAccountToRemoteServer(1)
+returnAccountToRemoteServer(accountId)
+{
+	global callbackUrl
+	url := callbackUrl . "?type=3&accountId=" . accountId
+	_sendHttpRequest(url)
+}
+
+_sendHttpRequest(url)
+{
+	WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	;;1 min timeout
+	WebRequest.SetTimeouts(60000, 60000, 60000, 60000)
+	;MsgBox , % (url)
+	WebRequest.Open("GET", url)
+	WebRequest.Send(params)
+	return WebRequest.ResponseText
 }

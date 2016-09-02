@@ -83,7 +83,6 @@ deepthFindSearchResultPage(searchKeyword) ;Retrieve pointer to existing IE windo
 	{}
 }
 
-
 doSearch(homePageWb, searchKeyword)
 {
 	searchForm := homePageWb.document.getElementsByTagName("form")[0]

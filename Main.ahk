@@ -115,15 +115,16 @@ Loop
 					IEPageActive(videoWb)
 					Sleep 500
 					logInfo("Close video page:" . searchUrl)
-					closeWb(videoWb)
 					Sleep 2000
 				}
+				closeWb(searchWb)
 			}
 			else
 			{
 				logInfo("Can not find the search url:" . searchUrl . " by search keyword:" . searchKeyword . " in the first search result page.")
 				;goto direct
 			}
+			closeIEDomExcludiveHomepage(homepageWb)			
 		}
 		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
 		;restart the route
