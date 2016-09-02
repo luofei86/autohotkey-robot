@@ -1,4 +1,5 @@
 ---获取播放任务接口
+http://zhaopai.tv/crontab/aqiyi.playvideo.php
 parameter:
 	macAddress:
 return:
@@ -27,6 +28,7 @@ return:
 }
 
 ----汇报运行状态接口
+http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php
 parameter:
   type:[0,1,2,3]0:accountLogin; 1:videoFind; 2:videoPlay;3:accountReturn
   acctounId:
