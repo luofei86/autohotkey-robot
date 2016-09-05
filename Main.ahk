@@ -21,7 +21,7 @@ Loop
 	try{
 		remoteTaskInfo := ServerApiGetRemoteTaskInfo()
 		taskLength := remoteTaskInfo.tasks.MaxIndex()
-		if (taskLength = 0)
+		if (!taskLength || taskLength = 0)
 		{
 			;current no task
 			;Sleep 30 seconds
@@ -32,6 +32,11 @@ Loop
 		accountId := account.id
 		accountName := account.name
 		accountPwd := account.pwd
+		if(!account || !accountId || !accountName || !accountPwd)
+		{
+			SleepBeforeNextLoop()
+			continue
+		}
 		;;clear the env
 		closePreIe()
 		;setting
@@ -87,34 +92,34 @@ Loop
 			;fuzzyUserRandomAccessWebsite(homepageWb)
 			searchKeyword := taskInfo.searchKeyword
 			;searchUrl := "http://www.iqiyi.com/v_19rrlxsds8.html"
-			searchUrl := taskInfo.searchUrl
-			videoTimes := taskInfo.videoTimes
+			url := taskInfo.url
+			duration := taskInfo.duration * 1000
 			IEPageActive(homepageWb)
 			searchWb := gotoSearchPage(homepageWb, searchKeyword)
-			logInfo("Loop the video:" . searchUrl)
+			logInfo("Loop the video:" . url)
 			if !searchWb
 			{
-				logError("Loop the video:" . searchUrl . ", but dose not found by the searchKeyword:" . searchKeyword)
+				logError("Loop the video:" . url . ", but dose not found by the searchKeyword:" . searchKeyword)
 				closeIEDomExcludiveHomepage(homepageWb)
 				continue
 			}
 			IEPageActive(searchWb)			
-			logInfo("Click to the search url page:" . searchUrl)
-			findResult := clickToSearchUrlPage(searchWb, searchUrl)
+			logInfo("Click to the search url page:" . url)
+			findResult := clickToSearchUrlPage(searchWb, url)
 			
 			;MsgBox "FIND SEARCH RESULT AND CLICK IT."
-			;findResult := clickToSearchUrlPage(searchWb, searchUrl)
+			;findResult := clickToSearchUrlPage(searchWb, url)
 			;wb.quit
 			if findResult
 			{
-				videoWb := gotoResultUrlPage(searchUrl)
+				videoWb := gotoResultUrlPage(url)
 				if videoWb
 				{
-					startAndWaitVideoPlayFinished(videoWb, videoTimes)
-					logInfo("Finished play the video at video page:" . searchUrl)					
+					startAndWaitVideoPlayFinished(videoWb, duration)
+					logInfo("Finished play the video at video page:" . url)					
 					;IEPageActive(videoWb)
 					Sleep 500
-					logInfo("Close video page:" . searchUrl)
+					logInfo("Close video page:" . url)
 					closeWb(videoWb)
 					Sleep 2000
 				}
@@ -122,7 +127,7 @@ Loop
 			}
 			else
 			{
-				logInfo("Can not find the search url:" . searchUrl . " by search keyword:" . searchKeyword . " in the first search result page.")
+				logInfo("Can not find the search url:" . url . " by search keyword:" . searchKeyword . " in the first search result page.")
 				;goto direct
 			}
 			closeIEDomExcludiveHomepage(homepageWb)			
@@ -154,6 +159,7 @@ restartRoute()
 
 SleepBeforeNextLoop()
 {
+	closePreIe()
 	try{
 		logInfo("Sleep 30000 before next loop")
 		Sleep 30000

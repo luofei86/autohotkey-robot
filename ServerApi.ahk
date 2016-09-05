@@ -1,11 +1,21 @@
 ﻿;;;;server api handle
 #Include MachineUtils.ahk
 #Include LoggerUtils.ahk
+#Include json\JSON.ahk
 
 taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
 callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
 
-ServerApiGetRemoteTaskInfo()
+;~ respTask := ServerApiGetRemoteTaskInfo()
+
+;~ value := JSON.Load(respTask)
+
+;~ MsgBox, % (value.account.id)
+;~ MsgBox, % (value.account.id)
+;~ searchKeyword := value.tasks[1].searchKeyword
+;~ url := value.tasks[1].url
+;~ MsgBox, % (searchKeyword)
+;~ MsgBox, % (url)
 
 ServerApiStrRemoteTaskInfo(remoteTaskInfo)
 {
@@ -27,72 +37,72 @@ ServerApiGetRemoteTaskInfo()
 		;accountId;
 		;accountPwd;
 		;tasks
-		;~ global taskUrl
-		;~ requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
-		;~ ;MsgBox , % (requestUrlWithPara)
-		;~ responseInfo := _sendHttpRequest(requestUrlWithPara)
-		;~ MsgBox , % (responseInfo)
-		;~ logDebug(responseInfo)
-		
-		
-		taskInfo := {}
-		taskInfo.account := _initAccount()
-		taskInfo.tasks := _initTasks()
-		return taskInfo
+		global taskUrl
+		requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
+		;MsgBox , % (requestUrlWithPara)
+		responseInfo := _sendHttpRequest(requestUrlWithPara)
+		;MsgBox , % (responseInfo)
+		logDebug(responseInfo)
+		value := JSON.Load(responseInfo)
+		return value
+		;~ taskInfo := {}
+		;~ taskInfo.account := _initAccount()
+		;~ taskInfo.tasks := _initTasks()
+		;~ return taskInfo
 	}
 	;ver := ""
 }
-_initAccount()
-{
-	account := {}
-	account.id := 1
-	account.nickname := "爱吃甜品的南宫和宜"
-	account.name := "13693243521"
-	account.pwd := "1470-=p[]\l;'"
-	return account
-}
-_initTasks()
-{
-	tasks := Object()
-	task := {}
-	task.id := 1
-	task.searchKeyword := "G20"
-	task.searchUrl := "http://www.iqiyi.com/l_19rr781u3f.html"
-	task.videoTimes := 20000
-	tasks.Insert(task)
+;~ _initAccount()
+;~ {
+	;~ account := {}
+	;~ account.id := 1
+	;~ account.nickname := "爱吃甜品的南宫和宜"
+	;~ account.name := "13693243521"
+	;~ account.pwd := "1470-=p[]\l;'"
+	;~ return account
+;~ }
+;~ _initTasks()
+;~ {
+	;~ tasks := Object()
+	;~ task := {}
+	;~ task.id := 1
+	;~ task.searchKeyword := "G20"
+	;~ task.url := "http://www.iqiyi.com/l_19rr781u3f.html"
+	;~ task.duration := 20000
+	;~ tasks.Insert(task)
 	
-	task := {}
-	task.id := 2
-	task.searchKeyword := "G20"
-	task.searchUrl := "http://www.iqiyi.com/l_19rr7hhu7r.html"
-	task.videoTimes := 20000
-	tasks.Insert(task)	
-	task := {}
-	task.id := 3
-	task.searchKeyword := "G20"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrm5k7ag.html?list=19rrkj49ci#vfrm=2-3-0-1"
-	task.videoTimes := 20000
-	tasks.Insert(task)	
-	task := {}
-	task.id := 4
-	task.searchKeyword := "G20"
-	task.searchUrl := "http://www.iqiyi.com/a_19rrh9n7ut.html#vfrm=2-3-0-1"
-	task.videoTimes := 20000
-	tasks.Insert(task)	
-	task := {}
-	task.id := 5
-	task.searchKeyword := "G20"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrm54l94.html#vfrm=2-3-0-1"
-	task.videoTimes := 20000
-	tasks.Insert(task)	
-	task := {}
-	task.id := 6
-	task.searchKeyword := "G20"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrlxqt90.html#vfrm=2-3-0-1"
-	task.videoTimes := 20000
-	tasks.Insert(task)
-	return tasks
-}
+	;~ task := {}
+	;~ task.id := 2
+	;~ task.searchKeyword := "G20"
+	;~ task.url := "http://www.iqiyi.com/l_19rr7hhu7r.html"
+	;~ task.duration := 20000
+	;~ tasks.Insert(task)	
+	;~ task := {}
+	;~ task.id := 3
+	;~ task.searchKeyword := "G20"
+	;~ task.url := "http://www.iqiyi.com/v_19rrm5k7ag.html?list=19rrkj49ci#vfrm=2-3-0-1"
+	;~ task.duration := 20000
+	;~ tasks.Insert(task)	
+	;~ task := {}
+	;~ task.id := 4
+	;~ task.searchKeyword := "G20"
+	;~ task.url := "http://www.iqiyi.com/a_19rrh9n7ut.html#vfrm=2-3-0-1"
+	;~ task.duration := 20000
+	;~ tasks.Insert(task)	
+	;~ task := {}
+	;~ task.id := 5
+	;~ task.searchKeyword := "G20"
+	;~ task.url := "http://www.iqiyi.com/v_19rrm54l94.html#vfrm=2-3-0-1"
+	;~ task.duration := 20000
+	;~ tasks.Insert(task)	
+	;~ task := {}
+	;~ task.id := 6
+	;~ task.searchKeyword := "G20"
+	;~ task.url := "http://www.iqiyi.com/v_19rrlxqt90.html#vfrm=2-3-0-1"
+	;~ task.duration := 20000
+	;~ tasks.Insert(task)
+	;~ return tasks
+;~ }
 ;report task finish info to server
 
 reportTaskUUrlFindInfo(accountId, videoId, result, info)

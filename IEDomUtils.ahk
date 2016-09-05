@@ -1,4 +1,5 @@
 #Include MouseMoveUtils.ahk
+#Include LoggerUtils.ahk
 ;test
 ;url like http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F or 
 ;url like http://passport.iqiyi.com/pages/secure/index.action
@@ -134,7 +135,7 @@ closeIEDomExcludiveHomepage(homepageWb)
 	}	
 }
 
-IEDomGetByUrl(searchUrl)
+IEDomGetByUrl(url)
 {
     For wb in ComObjCreate( "Shell.Application" ).Windows
 	{
@@ -144,9 +145,9 @@ IEDomGetByUrl(searchUrl)
 			{
 				wbUrl := wb.document.URL
 				IEDomWait(wb)
-				if InStr(wbUrl, searchUrl)
+				if InStr(wbUrl, url)
 				{
-					;MsgBox % "Find wb by url:" (searchUrl)
+					;MsgBox % "Find wb by url:" (url)
 					return wb
 				}
 			}

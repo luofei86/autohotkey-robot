@@ -97,7 +97,7 @@ doSearch(homePageWb, searchKeyword)
 }
 
 
-clickToSearchUrlPage(searchWb, searchUrl)
+clickToSearchUrlPage(searchWb, url)
 {
 	Links :=searchWb.document.links
 	length := searchWb.document.links.length
@@ -105,10 +105,10 @@ clickToSearchUrlPage(searchWb, searchUrl)
 	{
 		anchorLink := Links[A_index-1]
 		href := anchorLink.getAttribute("href")
-		if InStr(href, searchUrl)
+		if InStr(href, url)
 		{
 			anchorLink.click()
-			logInfo("Click to access the search url:" . searchUrl)
+			logInfo("Click to access the search url:" . url)
 			return true
 		}
 	}
@@ -116,9 +116,9 @@ clickToSearchUrlPage(searchWb, searchUrl)
 }
 
 
-gotoResultUrlPage(searchUrl)
+gotoResultUrlPage(url)
 {
-	videoWb := IEDomGetByUrl(searchUrl)
+	videoWb := IEDomGetByUrl(url)
 	if videoWb
 	{
 		IEDomWait(videoWb)

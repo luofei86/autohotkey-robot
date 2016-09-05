@@ -1,40 +1,55 @@
 ;input iqiti login vcode
 #Include MouseMoveUtils.ahk
+#Include IEDomUtils.ahk
+vcodeImgPath := "C:\vcode\"
+;;;;test
+homepageWb := IEDomGetByUrl("http://www.iqiyi.com/")
+if !homepageWb
+{
+	MsgBox, "Not find the page."
+}
 
+enterVcode(homepageWb)
+
+Sleep 5000
+ExitApp
 
 enterVcode(homepageWb)
 {
+	IEPageActive(homepageWb)
+	Sleep 500
 	pWin := homepageWb.document.parentWindow
 	;MsgBox "Move to img"
 	moveToImg(homepageWb, pWin)
-	saveVcodeImg()
+	imgPath := saveVcodeImg()
 	Sleep 500
-	distinguishVcode()
+	distinguishVcode(imgPath)
 	;
 	Send {Enter}
 }
 
 distinguishVcode(vcodePath := "")
 {
+	msgbox, % "Distinguish vcode:" (vcodePath)
 	Sleep 10000
 	return True
 }
 
 saveVcodeImg()
 {
+	global vcodeImgPath
 	Sleep 2000			
 	MouseClick, right
 	Sleep 1000
 	Send {s}
 	Sleep 500
-	fileName := % A_Now
+	fileName :=% A_Now
+	fileName :=  vcodeImgPath . fileName
 	Send %fileName%
 	Sleep 500
 	Send {Enter}
-	Sleep 500
-	Send {Tab}
-	Sleep 500
-	Send {Enter}
+	Sleep 5000
+	return vcodeImgPath . fileName . "png"
 }
 
 moveToImg(homepageWb, pWin)
