@@ -112,9 +112,10 @@ Loop
 				{
 					startAndWaitVideoPlayFinished(videoWb, videoTimes)
 					logInfo("Finished play the video at video page:" . searchUrl)					
-					IEPageActive(videoWb)
+					;IEPageActive(videoWb)
 					Sleep 500
 					logInfo("Close video page:" . searchUrl)
+					closeWb(videoWb)
 					Sleep 2000
 				}
 				closeWb(searchWb)
@@ -128,6 +129,7 @@ Loop
 		}
 		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
 		;restart the route
+		closePreIe()
 		restartRoute()
 	}
 	catch
