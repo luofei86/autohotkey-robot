@@ -56,39 +56,39 @@ _initTasks()
 	tasks := Object()
 	task := {}
 	task.id := 1
-	task.searchKeyword := "冠军来了"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrlll2k4.html"
+	task.searchKeyword := "G20"
+	task.searchUrl := "http://www.iqiyi.com/l_19rr781u3f.html"
 	task.videoTimes := 20000
 	tasks.Insert(task)
 	
 	task := {}
 	task.id := 2
-	task.searchKeyword := "冠军来了"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrlgel20.html"
+	task.searchKeyword := "G20"
+	task.searchUrl := "http://www.iqiyi.com/l_19rr7hhu7r.html"
 	task.videoTimes := 20000
 	tasks.Insert(task)	
 	task := {}
 	task.id := 3
-	task.searchKeyword := "冠军来了"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrlxs0e8.html"
+	task.searchKeyword := "G20"
+	task.searchUrl := "http://www.iqiyi.com/v_19rrm5k7ag.html?list=19rrkj49ci#vfrm=2-3-0-1"
 	task.videoTimes := 20000
 	tasks.Insert(task)	
 	task := {}
 	task.id := 4
-	task.searchKeyword := "冠军来了"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrleefds.html"
+	task.searchKeyword := "G20"
+	task.searchUrl := "http://www.iqiyi.com/a_19rrh9n7ut.html#vfrm=2-3-0-1"
 	task.videoTimes := 20000
 	tasks.Insert(task)	
 	task := {}
 	task.id := 5
-	task.searchKeyword := "冠军来了"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrlsezm8.html"
+	task.searchKeyword := "G20"
+	task.searchUrl := "http://www.iqiyi.com/v_19rrm54l94.html#vfrm=2-3-0-1"
 	task.videoTimes := 20000
 	tasks.Insert(task)	
 	task := {}
 	task.id := 6
-	task.searchKeyword := "冠军来了"
-	task.searchUrl := "http://www.iqiyi.com/v_19rrm66xrc.html"
+	task.searchKeyword := "G20"
+	task.searchUrl := "http://www.iqiyi.com/v_19rrlxqt90.html#vfrm=2-3-0-1"
 	task.videoTimes := 20000
 	tasks.Insert(task)
 	return tasks
