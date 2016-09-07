@@ -93,6 +93,29 @@
 	;~ ExitApp
 ;~ }
 
+
+EleExistsAndDisplay(ele)
+{
+	try
+	{
+		if (ele)
+		{
+			rect := el.getBoundingClientRect()
+			if (rect)
+			{
+				if (rect.top and rect.bottom)
+				{
+					eleHidden := rect.top = rect.bottom
+					return !eleHidden
+				}
+			}
+		}
+	}
+	catch
+	{
+	}
+	return false
+}
 SetInputEleValue(inputEle, value)
 {
 	;MsgBox "Find input pwd"
@@ -304,9 +327,12 @@ gotoUrl(url)
 
 IEPageActive(wb)
 {
-	WinShow, % "ahk_id " wb.HWND
-	WinActivate, % "ahk_id " wb.HWND
-	wb.Visible := true
+	if wb
+	{
+		WinShow, % "ahk_id " wb.HWND
+		WinActivate, % "ahk_id " wb.HWND
+		wb.Visible := true
+	}
 }
 
 hiddenIEBar(wb, keystore)

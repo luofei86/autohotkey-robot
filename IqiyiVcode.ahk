@@ -3,16 +3,30 @@
 #Include IEDomUtils.ahk
 vcodeImgPath := "C:\vcode\"
 ;;;;test
-homepageWb := IEDomGetByUrl("http://www.iqiyi.com/")
-if !homepageWb
+;~ homepageWb := IEDomGetByUrl("http://www.iqiyi.com/")
+;~ if !homepageWb
+;~ {
+	;~ MsgBox, "Not find the page."
+;~ }
+
+;~ enterVcode(homepageWb)
+
+;~ Sleep 5000
+;~ ExitApp
+
+enterVcode(pageWb, imgEle, inputVcodeEle)
 {
-	MsgBox, "Not find the page."
+	IEPageActive(pageWb)
+	Sleep 500
+	pWin := pageWb.document.parentWindow
+	moveToImgEle(pWin, imgEle)
+	imgPath := saveVcodeImg()
+	distinguishVcode(imgPath)
+	;call c++ exe to get vcode
+	
+	vcode := ""
+	SetInputEleValue(inputVcodeEle, vcode)
 }
-
-enterVcode(homepageWb)
-
-Sleep 5000
-ExitApp
 
 enterVcode(homepageWb)
 {
@@ -50,6 +64,23 @@ saveVcodeImg()
 	Send {Enter}
 	Sleep 5000
 	return vcodeImgPath . fileName . "png"
+}
+
+moveToImgEle(pWin, imgEle)
+{
+	pos := findPos(imgEle)
+	;MsgBox % "Cur img Top:" (pos.top) " Left:" (pos.left) "Right:" (pos.right)
+	mouseGoToX := pos.left + pWin.screenLeft  + 30
+	mouseGoToY := pos.top + pWin.screenTop + 30
+	mouseMoveX := mouseGoToX - xpos
+	mouseMoveY := mouseGoToY - ypos
+	;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)
+	;MsgBox, 0, code img, %	"Left:	"		pos.left + pWin.screenLeft ; left side of element rectagle + left side of screen
+	;							.	"`nTop:	"		pos.top + pWin.screenTop
+	;							.	"`nRight:	"	pos.right + pWin.screenLeft
+	;							.	"`nBottom:	"	pos.bottom + pWin.screenTop
+	MouseMove, mouseMoveX, mouseMoveY, 50, R
+	return true
 }
 
 moveToImg(homepageWb, pWin)

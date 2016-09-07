@@ -2,6 +2,7 @@
 
 #Include IqiyiVcode.ahk
 #Include IEDomUtils.ahk
+#Include IqiyiAccountLoginPage.ahk
 
 ;pop logout
 ;~ <div class="nav-login-info nav-login-info-new" id="nav-login-info">
@@ -97,7 +98,8 @@ isLogout(homepageWb)
 				if (ahrefEleLoginboxElemValue = "topLoginPanel")
 				{
 					innerHTML := ahref.innerHTML
-					return loginText = "登录"
+					MsgBox % (innerHTML)
+					return innerHTML = "登录"
 				}
 			}
 		}
@@ -105,67 +107,6 @@ isLogout(homepageWb)
 	{
 		return False
 	}
-}
-;login http://passport.iqiyi.com/pages/secure/index.action
-loginFromSecureIndexPage(secureIndexPage, loginName, loginPwd)
-{	
-	;MsgBox % (secureIndexPage.document.body.innerHTML)
-	inputElements := secureIndexPage.document.getElementsByTagName("input")
-	length := inputElements.length
-	inputAccount := False
-	inputPwd := False		
-	Loop % length
-	{
-		inputEle := inputElements[A_Index-1]
-		inputEleType := inputEle.getAttribute("type")
-		if (inputEleType = "password")
-		{
-			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
-			if (inputEleLoginboxElemValue = "passwdInput")
-			{
-				inputPwd := SetInputEleValue(inputEle, loginPwd)
-			}
-		}else if(inputEleType = "text")
-		{
-			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
-			if (inputEleLoginboxElemValue = "emailInput")
-			{
-				inputAccount := SetInputEleValue(inputEle, loginName)
-			}
-		}
-		if(inputAccount && inputPwd)
-		{
-			break
-		}
-	}
-	if(inputAccount && inputPwd)
-	{
-		;login press enter
-		ahrefs := secureIndexPage.document.getElementsByTagName("a")
-		if (ahrefs)
-		{
-			length := ahrefs.length
-			Loop % length
-			{
-				ahref := ahrefs[A_Index -1]
-				ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
-				if (ahrefEleLoginboxElemValue = "loginBtn")
-				{
-					ahref.focus()
-					ahref.click()
-					Sleep 3000
-					IEDomWait(secureIndexPage)
-					userNmae := document.getElementById("top-username").innerHTML
-					if (userName && StrLen(userName) > 0)
-					{
-						return True
-					}						
-					break
-				}
-			}
-		}
-	}
-	return False
 }
 
 loginFromHomepage(homepageWb, loginName, loginPwd)
@@ -190,24 +131,41 @@ loginFromHomepage(homepageWb, loginName, loginPwd)
 				logined := loginFromSecureIndexPage(secureIndexPage, loginName, loginPwd)
 				if(logined)
 				{
-					
+					handleLoginedByOtherPage(secureIndexPage, homepageWb)
+					return true
 				}
 			}
 			else
 			{
+				loginIndexPage := IEDomGetUrl("http://passport.iqiyi.com/user/login.php")
+				if(loginIndexPage)
+				{
+					logined := loginFromLoginIndexPage(loginIndexPage, loginName, loginPwd)
+					if(logined)
+					{
+						handleLoginedByOtherPage(loginIndexPage, homepageWb)
+						return true
+					}
+				}
 			}
 			
 			
 		}
 		Sleep 1000
 	}
-	return False
+	return false
 }
 
-loginByLoginPage()
+;close logined page fresh homepage
+handleLoginedByOtherPage(loginPage, homePage)
 {
-	
+	closeWb(loginPage)
+	Sleep 2000
+	IEPageActive(homePage)
+	Send {F5}
+	Sleep 5000
 }
+
 
 loginByPopDiv(homepageWb, loginName, loginPwd)
 {
