@@ -158,6 +158,15 @@ closeIEDomExcludiveHomepage(homepageWb)
 	}	
 }
 
+closeIEDomExcludiveHomepageAndReFresh(homepageWb)
+{
+	closeIEDomExcludiveHomepage(homepageWb)
+	Sleep 500
+	IEPageActive(homepageWb)
+	Send {F5}
+	Sleep 5000
+}
+
 IEDomGetByUrl(url)
 {
     For wb in ComObjCreate( "Shell.Application" ).Windows

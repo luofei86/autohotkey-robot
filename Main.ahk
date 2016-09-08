@@ -71,15 +71,19 @@ Loop
 		if (!accountLogged)
 		{
 			logInfo("Login from the homepage.")
-			accountLoginInfo := loginFromHomepage(homepageWb, accountName, accountPwd)
-			if (!accountLoginInfo.result)
+			accountLogined := loginFromHomepage(homepageWb, accountName, accountPwd, account.nickname)
+			if (!accountLogined)
 			{
 				logError("Failed to login from the homepage.")
 				reportAccountLoginInfo(accountId, accountLoginInfo.result, accountLoginInfo.info)
 				SleepBeforeNextLoop()
 				continue
 			}
-		}		
+			else
+			{
+				closeIEDomExcludiveHomepageAndReFresh(homepageWb)
+			}
+		}
 		logInfo("Logined the iqiyi account:" . accountName)
 		;play video
 		tasks := remoteTaskInfo.tasks

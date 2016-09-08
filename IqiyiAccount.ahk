@@ -3,29 +3,9 @@
 #Include IqiyiVcode.ahk
 #Include IEDomUtils.ahk
 #Include IqiyiAccountLoginPage.ahk
+secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
+useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
 
-;pop logout
-;~ <div class="nav-login-info nav-login-info-new" id="nav-login-info">
-	;~ <div class="nav-login-inner">
-		;~ <span class="nav-login_arrow"><i class="tip_outer"></i> <i class="tip_inner"></i></span>
-		;~ <div class="nav-login-bd">
-			;~ <div class="nav-login-top clearfix">
-				;~ <div class="img"><a href="http://www.iqiyi.com/u/" target="_blank" rseat="1503081_1" class="homeLink">
-					;~ <img src="http://www.qiyipic.com/common/fix/headicons/male-70.png" width="50" height="50" rseat="1503081_1" alt=""></a>
-				;~ </div>
-				;~ <div class="title">
-					;~ <span class="userName clearfix">
-						;~ <a href="http://www.iqiyi.com/u/" class="userName_link" target="_blank"><span class="name" rseat="1503081_2">爱吃甜品的南宫和宜</span></a>
-						;~ <a class="qyvr-gray qyv-rank" href="http://www.iqiyi.com/club/" target="_blank" id="J_vip-kthy"></a></span><span class="tip">
-						;~ <a href="http://serv.vip.iqiyi.com/order/renew-vip.action?fc=b1155904b6eaa861" class="vip_link" rseat="1503081_4" target="_blank">立即开通VIP 全站跳广告 大片随意看</a>
-						;~ <a href="javascript:void(0)" class="vip_link ml20" target="_blank" rseat="1503081_13" data-delegate="j-logoutBtn">退出</a>
-					;~ </span>
-				;~ </div>
-			;~ </div>
-		;~ </div>
-	;~ </div>
-;~ </div>
-;~ http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F
 IqiyiAccoountHadAccountLogged(homepageWb)
 {
 	try{
@@ -63,19 +43,21 @@ IqiyiLogoutFromHomepage(homepageWb)
 				try
 				{
 					popDiv.getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("a")[3].click()
-					Loop
+					Loop, 10
+					{
 						if(isLogout(homepageWb))
 						{
-							break
+							return true
 						}
 						Sleep 1000
+					}
 				}
 				catch{}
 			}
 			Sleep 2000
 		}
-		
 	}
+	return false
 }
 
 getUserLoginedDiv(homepageWb)
@@ -109,8 +91,10 @@ isLogout(homepageWb)
 	}
 }
 
-loginFromHomepage(homepageWb, loginName, loginPwd)
+loginFromHomepage(homepageWb, loginName, loginPwd, nickname)
 {
+	global secureIndexUrl
+	global useLoginIndexUrl
 	if (homepageWb)
 	{
 		;MsgBox "Pop login div"
@@ -120,166 +104,81 @@ loginFromHomepage(homepageWb, loginName, loginPwd)
 		Sleep 1000
 		if(popLoginDiv)
 		{
-			return loginByPopDiv(homepageWb, loginName, loginPwd)
-		}else{
-			;open login page
-			;url like http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F or 
-			;url like http://passport.iqiyi.com/pages/secure/index.action
-			secureIndexPage := IEDomGetByUrl("http://passport.iqiyi.com/pages/secure/index.action")
-			if (secureIndexPage)
-			{
-				logined := loginFromSecureIndexPage(secureIndexPage, loginName, loginPwd)
-				if(logined)
-				{
-					handleLoginedByOtherPage(secureIndexPage, homepageWb)
-					return true
-				}
-			}
-			else
-			{
-				loginIndexPage := IEDomGetUrl("http://passport.iqiyi.com/user/login.php")
-				if(loginIndexPage)
-				{
-					logined := loginFromLoginIndexPage(loginIndexPage, loginName, loginPwd)
-					if(logined)
-					{
-						handleLoginedByOtherPage(loginIndexPage, homepageWb)
-						return true
-					}
-				}
-			}
-			
-			
+			return handleLoginByPoploginDiv(homepageWb, loginName, loginPwd, nickname)
 		}
-		Sleep 1000
+		else
+		{
+			secureIndexPageWb := IEDomGetByUrl(secureIndexUrl)
+			if (secureIndexPageWb)
+			{
+				return handleLoginBySecureIndexPage(secureIndexPageWb, loginName, loginPwd, nickname)
+			}			
+			loginIndexPageWb := IEDomGetUrl(useLoginIndexUrl)
+			if(loginIndexPage)
+			{
+				return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd, nickname)
+			}
+			return false
+		}
 	}
 	return false
 }
 
-;close logined page fresh homepage
-handleLoginedByOtherPage(loginPage, homePage)
+handleLoginByPoploginDiv(homepageWb, loginName, loginPwd, nickname)
 {
-	closeWb(loginPage)
-	Sleep 2000
-	IEPageActive(homePage)
-	Send {F5}
-	Sleep 5000
-}
-
-
-loginByPopDiv(homepageWb, loginName, loginPwd)
-{
-	accountLoginInfo.result := false
-	accountLoginInfo.info := ""
-	;######
-	qipaLoginIfrDiv := homepageWb.document.getElementById("qipaLoginIfr")
-	
-	inputEles := qipaLoginIfrDiv.getElementsByTagName("input")
-	inputElesLength := inputEles.length
-	inputAccount := false
-	inputPwd := false
-	Loop % inputElesLength
+	Loop, 2
 	{
-		inputEle := inputEles[A_Index - 1]
-		inputEleType := inputEle.getAttribute("type")
-		if (inputEleType = "password")
+		doLogin := loginFromHomePopPage(homepageWb, loginName, loginPwd)
+		if(doLogin)
 		{
-			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
-			if (inputEleLoginboxElemValue = "passwdInput")
-			{
-				inputPwd := SetInputEleValue(inputEle, loginPwd)
-			}
-		}
-		else if(inputEleType = "text")
-		{
-			inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
-			if (inputEleLoginboxElemValue = "emailInput")
-			{
-				inputAccount := SetInputEleValue(inputEle, loginName)
-			}
-		}
-		if(inputAccount && inputPwd)
-		{
-			break
-		}
-	}
-	
-	Sleep 200
-	vcodeExists := ExistsVcode(homepageWb)
-	if (vcodeExists)
-	{
-		enterVcode(homepageWb)
-	}
-	;login
-	ahrefs := qipaLoginIfrDiv.getElementsByTagName("a")
-	if (ahrefs)
-	{
-		ahrefsLength := ahrefs.length
-		Loop % ahrefsLength
-		{
-			ahref := ahrefs[A_Index -1]
-			ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
-			if (ahrefEleLoginboxElemValue = "loginBtn")
-			{
-				ahref.focus()
-				ahref.click()
-				Sleep 5000
-			}
-		}
-	}
-	else
-	{
-		accountLoginInfo.info := "The pop login div dose not find the login btn to click."
-		logError("The pop login div dose not find the login btn to click.")
-		return accountLoginInfo
-	}
-	userName := homepageWb.document.getElementById("top-username").innerHTML
-	if (userName && StrLen(userName) > 0)
-	{
-		accountLoginInfo.result := true
-		return accountLoginInfo
-	}
-	qipaLoginIfrDiv := homepageWb.document.getElementById("qipaLoginIfr")
-	if (qipaLoginIfrDiv)
-	{
-		;娌℃湁鐧诲綍锛岄渶瑕佽緭鍏ヤ簩缁寸爜
-		vcodeExists := ExistsVcode(homepageWb)
-		if (vcodeExists)
-		{
-			enterVcode(homepageWb)
-		}
-	}
-	Sleep 5000	
-	userName := homepageWb.document.getElementById("top-username").innerHTML
-	if (userName && StrLen(userName) > 0)
-	{
-		accountLoginInfo.result := true
-		return accountLoginInfo
-	}
-	accountLoginInfo.info := "Login by pop login div failed."
-	return accountLoginInfo
-}
-
-
-ExistsVcode(homepageWb)
-{
-	table := homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0]
-	tbody := table.getElementsByTagName("tbody")[0]
-	trs :=  tbody.getElementsByTagName("tr")	
-	if (trs && trs.length >=3)
-	{
-		dataElem := trs[2].getAttribute("data-loginbox-elem")		
-		if (dataElem = "piccodeTr"){
-			tds := trs[2].getElementsByTagName("td")
-			divs := tds[0].getElementsByTagName("div")
-			spans := divs[0].getElementsByTagName("span")
-			images := spans[1].getElementsByTagName("img")
-			if (images && images.length >0)
+			logined := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, nickname)
+			if(logined)
 			{
 				return true
-			}			
+			}
+			continue
 		}
+		return false
 	}
-	Return False
+	return false
 }
 
+handleLoginBySecureIndexPage(loginPageWb, loginName, loginPwd, nickname)
+{
+	global secureIndexUrl
+	Loop, 2
+	{
+		doLogin := loginFromSecureIndexPage(loginPageWb, loginName, loginPwd)
+		if(doLogin)
+		{
+			alsoExistLoginPageWb := IEDomGetByUrl(secureIndexUrl)
+			if (!alsoExistLoginPageWb)
+			{
+				return true
+			}
+			continue
+		}
+		return false
+	}
+	return false
+}
+
+handleLoginByLoginIndexPage(loginPageWb, loginName, loginPwd, nickname)
+{
+	global useLoginIndexUrl
+	Loop, 2
+	{
+		doLogin := loginFromSecureIndexPage(loginPageWb, loginName, loginPwd)
+		if(doLogin)
+		{
+			alsoExistLoginPageWb := IEDomGetByUrl(useLoginIndexUrl)
+			if (!alsoExistLoginPageWb)
+			{
+				return true
+			}
+			continue
+		}
+		return false
+	}
+	return false
+}
