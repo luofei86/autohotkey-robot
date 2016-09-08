@@ -1,98 +1,5 @@
 #Include MouseMoveUtils.ahk
 #Include LoggerUtils.ahk
-;test
-;url like http://passport.iqiyi.com/user/login.php?url=http%3A%2F%2Fwww.iqiyi.com%2Fu%2F or 
-;url like http://passport.iqiyi.com/pages/secure/index.action
-
-;~ ^u::
-;~ {
-	;~ loginWb := IEDomGetByUrl("http://passport.iqiyi.com/user/login.php")
-	;~ ;"13693243521", "1470-=p[]\l;'")
-	;~ loginPwd := "1470-=p[]\l;'"
-	;~ loginName := "13693243521"
-	;~ if loginWb
-	;~ {
-		;~ MsgBox % (loginWb.document.body.innerHTML)
-	;~ }
-	;~ secureIndexPage := IEDomGetByUrl("http://passport.iqiyi.com/pages/secure/index.action")
-	;~ if secureIndexPage
-	;~ {
-		;~ ;MsgBox % (secureIndexPage.document.body.innerHTML)
-		;~ inputElements := secureIndexPage.document.getElementsByTagName("input")
-		;~ length := inputElements.length
-		;~ inputAccount := False
-		;~ inputPwd := False		
-		;~ Loop % length
-		;~ {
-			;~ inputEle := inputElements[A_Index-1]
-			;~ ;MsgBox % inputEle.classname
-			;~ ;MsgBox % (inputEle.getAttribute("type"))
-			;~ inputEleType := inputEle.getAttribute("type")
-			;~ if (inputEleType = "password")
-			;~ {
-				;~ inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")
-				;~ if (inputEleLoginboxElemValue = "passwdInput")
-				;~ {
-					;~ ;MsgBox "Find input pwd"
-					;~ inputEle.focus()
-					;~ inputEle.click()
-					;~ Sleep 500
-					;~ inputEle.value := loginPwd
-					;~ Sleep 2000
-					;~ inputPwd := True
-				;~ }
-			;~ }else if(inputEleType = "text")
-			;~ {
-				;~ inputEleLoginboxElemValue := inputEle.getAttribute("data-loginbox-elem")				
-				;~ if (inputEleLoginboxElemValue = "emailInput")
-				;~ {
-					;~ ;MsgBox "Find input pwd"
-					;~ inputEle.focus()
-					;~ inputEle.click()
-					;~ Sleep 500
-					;~ inputEle.value := loginName
-					;~ Sleep 2000
-					;~ inputAccount := True
-				;~ }
-			;~ }
-			;~ if(inputAccount && inputPwd)
-			;~ {
-				;~ break
-			;~ }
-		;~ }
-		;~ if(inputAccount && inputPwd)
-		;~ {
-			;~ ;login press enter
-			;~ ahrefs := secureIndexPage.document.getElementsByTagName("a")
-			;~ if (ahrefs)
-			;~ {
-				;~ length := ahrefs.length
-				;~ Loop % length
-				;~ {
-					;~ ahref := ahrefs[A_Index -1]
-					;~ ahrefEleLoginboxElemValue := ahref.getAttribute("data-loginbox-elem")
-					;~ if (ahrefEleLoginboxElemValue = "loginBtn")
-					;~ {
-						;~ ahref.focus()
-						;~ ahref.click()
-						;~ Sleep 3000
-						;~ IEDomWait(secureIndexPage)
-						;~ userNmae := document.getElementById("top-username").innerHTML
-						;~ if (userName && StrLen(userName) > 0)
-						;~ {
-							;~ return True
-						;~ }						
-						;~ break
-					;~ }
-				;~ }
-			;~ }
-		;~ }
-		
-	;~ }
-
-	;~ ExitApp
-;~ }
-
 
 EleExistsAndDisplay(ele)
 {
@@ -100,14 +7,12 @@ EleExistsAndDisplay(ele)
 	{
 		if (ele)
 		{
-			rect := el.getBoundingClientRect()
+			rect := ele.getBoundingClientRect()
 			if (rect)
 			{
-				if (rect.top and rect.bottom)
-				{
-					eleHidden := rect.top = rect.bottom
-					return !eleHidden
-				}
+				MsgBox, % "Top:" (rect.top) ", left:" (rect.left) ", bottom:" (rect.bottom)
+				eleHidden := ((rect.bottom -rect.top) <> 0)
+				return eleHidden
 			}
 		}
 	}

@@ -5,15 +5,8 @@
 #Include ServerApi.ahk
 #Include LoggerUtils.ahk
 #Include IEDomUtils.ahk
-;wb := ComObjCreate("InternetExplorer.Application")
-;wb.Visible := True
-;wb.Navigate("http://iqiyi.com")
 
-
-;;;screen Resolution
 WinGetPos,,, desk_width, desk_height, Program Manager
-;MsgBox % "Desk width:" (desk_width) ", Desk height:" (desk_height)
-
 
 
 Loop
@@ -23,8 +16,6 @@ Loop
 		taskLength := remoteTaskInfo.tasks.MaxIndex()
 		if (!taskLength || taskLength = 0)
 		{
-			;current no task
-			;Sleep 30 seconds
 			SleepBeforeNextLoop()
 			continue
 		}
@@ -37,16 +28,7 @@ Loop
 			SleepBeforeNextLoop()
 			continue
 		}
-		;;clear the env
-		closePreIe()
-		;setting
-		;settingIe()
-		;Sleep 1000
-		;;check the env
-			
-		;;get task
-		
-		;login first
+		closePreIe()		
 		homepageWb := IqiyiGotoHomepage()
 		if !homepageWb
 		{
@@ -54,7 +36,7 @@ Loop
 			SleepBeforeNextLoop()
 			continue
 		}
-		Sleep 1000
+		Sleep 500
 		logInfo("Get the iqiyi homepage account login status.")
 		logged := IqiyiAccoountHadAccountLogged(homepageWb)
 		accountLogged := false		

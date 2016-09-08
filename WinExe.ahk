@@ -1,21 +1,6 @@
 #Include LoggerUtils.ahk
 exePath := "E:\source\cplusdemo\autohotkeyexe\autohotkeyexe\Release\autohotkeyexe.exe"
-
-;run , E:\source\cplusdemo\autohotkeyexe\autohotkeyexe\Release\autohotkeyexe.exe C:\vcode\1.png C:\vcode\1.txt
-;run , "E:\source\cplusdemo\autohotkeyexe\autohotkeyexe\Release\autohotkeyexe.exe C:\vcode\1.png C:\vcode\1.txt" 
-
-;~ vcode := distinctVcode("C:\vcode\1.png", "C:\vcode\2dfadsa.txt")
-;~ if (vcode)
-;~ {
-  ;~ MsgBox, % (vcode)
-;~ }
-;~ else
-;~ {
-  ;~ MsgBox, "Not distinct vcode."
-;~ }
-
-
-;~ MsgBox, % (vcode)
+exePath := "D:\sources\github\autohotkey-vcode\Release"
 
 distinctVcode(vcodeImgPath, vcodeResultPath)
 {

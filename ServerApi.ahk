@@ -6,17 +6,6 @@
 taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
 callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
 
-;~ respTask := ServerApiGetRemoteTaskInfo()
-
-;~ value := JSON.Load(respTask)
-
-;~ MsgBox, % (value.account.id)
-;~ MsgBox, % (value.account.id)
-;~ searchKeyword := value.tasks[1].searchKeyword
-;~ url := value.tasks[1].url
-;~ MsgBox, % (searchKeyword)
-;~ MsgBox, % (url)
-
 ServerApiStrRemoteTaskInfo(remoteTaskInfo)
 {
 	if remoteTaskInfo
@@ -31,12 +20,6 @@ ServerApiGetRemoteTaskInfo()
 	macAddress := GetMacAddress()
 	if macAddress
 	{
-		;MsgBox % macAddress
-		;accountNickname
-		;accountName;
-		;accountId;
-		;accountPwd;
-		;tasks
 		global taskUrl
 		requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
 		;MsgBox , % (requestUrlWithPara)
@@ -50,7 +33,6 @@ ServerApiGetRemoteTaskInfo()
 		;~ taskInfo.tasks := _initTasks()
 		;~ return taskInfo
 	}
-	;ver := ""
 }
 ;~ _initAccount()
 ;~ {
@@ -126,7 +108,7 @@ reportAccountLoginInfo(accountId, result, info)
 	url := callbackUrl . "?type=0&accountId=" . accountId . "&result=" . result . "&info=" . info
 	_sendHttpRequest(url)
 }
-;returnAccountToRemoteServer(1)
+
 returnAccountToRemoteServer(accountId)
 {
 	global callbackUrl

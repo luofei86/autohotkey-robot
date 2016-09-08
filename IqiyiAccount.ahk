@@ -113,7 +113,7 @@ loginFromHomepage(homepageWb, loginName, loginPwd, nickname)
 			{
 				return handleLoginBySecureIndexPage(secureIndexPageWb, loginName, loginPwd, nickname)
 			}			
-			loginIndexPageWb := IEDomGetUrl(useLoginIndexUrl)
+			loginIndexPageWb := IEDomGetByUrl(useLoginIndexUrl)
 			if(loginIndexPage)
 			{
 				return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd, nickname)

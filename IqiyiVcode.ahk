@@ -4,15 +4,6 @@
 #Include WinExe.ahk
 
 vcodeImgPath := "C:\vcode\"
-;;;;test
-;~ homepageWb := IEDomGetByUrl("http://www.iqiyi.com/")
-;~ if !homepageWb
-;~ {
-	;~ MsgBox, "Not find the page."
-;~ }
-
-;~ Sleep 5000
-;~ ExitApp
 
 enterVcode(pageWb, imgEle, inputVcodeEle)
 {
@@ -56,6 +47,7 @@ moveToImgEle(pWin, imgEle)
 	;MsgBox % "Cur img Top:" (pos.top) " Left:" (pos.left) "Right:" (pos.right)
 	mouseGoToX := pos.left + pWin.screenLeft  + 30
 	mouseGoToY := pos.top + pWin.screenTop + 30
+	MouseGetPos, xpos, ypos 
 	mouseMoveX := mouseGoToX - xpos
 	mouseMoveY := mouseGoToY - ypos
 	;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)

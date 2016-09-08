@@ -9,9 +9,6 @@ IqiyiGotoHomepage()
 {
 	global homeUrl
 	homepageWb := gotoUrl(homeUrl)
-	;~ homePageWb := ComObjCreate("InternetExplorer.Application") ;create a IE instance
-	;~ homePageWb.Visible := True
-	;~ homePageWb.Navigate(loadUrl)
 	if homepageWb
 	{
 		WinMaximize, % "ahk_id " homepageWb.HWND
