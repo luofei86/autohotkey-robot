@@ -10,7 +10,6 @@ EleExistsAndDisplay(ele)
 			rect := ele.getBoundingClientRect()
 			if (rect)
 			{
-				MsgBox, % "Top:" (rect.top) ", left:" (rect.left) ", bottom:" (rect.bottom)
 				eleHidden := ((rect.bottom -rect.top) <> 0)
 				return eleHidden
 			}
@@ -23,7 +22,6 @@ EleExistsAndDisplay(ele)
 }
 SetInputEleValue(inputEle, value)
 {
-	;MsgBox "Find input pwd"
 	try{
 		inputEle.focus()
 		inputEle.click()
@@ -69,7 +67,8 @@ closeIEDomExcludiveHomepageAndReFresh(homepageWb)
 	Sleep 500
 	IEPageActive(homepageWb)
 	Send {F5}
-	Sleep 5000
+	IEDomWait(homepageWb)
+	Sleep 500
 }
 
 IEDomGetByUrl(url)
@@ -84,7 +83,6 @@ IEDomGetByUrl(url)
 				IEDomWait(wb)
 				if InStr(wbUrl, url)
 				{
-					;MsgBox % "Find wb by url:" (url)
 					return wb
 				}
 			}
@@ -139,22 +137,6 @@ getIEDomLocationUrl(wb)
 	catch
 	{
 	}	
-}
-
-IEDomLoad(wb)    ;You need to send the IE handle to the function unless you define it as global.
-{
-    If !wb    ;If wb is not a valid pointer then quit
-        Return False
- ;   Loop    ;Otherwise sleep for .1 seconds untill the page starts loading
-   ;     Sleep,100
-   ; Until (wb.busy)
-    Loop    ;Once it starts loading Wait until completes
-        Sleep,100
-    Until (!wb.busy)
-    Loop    ;optional check to wait for the page to completely load
-        Sleep,100
-    Until (wb.Document.Readystate = "Complete")
-	Return True
 }
 
 findIEElementByTwoAttr(eles, attrName0, attrValue0,  attrName1, attrValue1)
@@ -235,7 +217,7 @@ gotoUrl(url)
 	Sleep 200
 	IEDomWait(homePageWb)	
 	WinMaximize, % "ahk_id " homePageWb.HWND
-	Sleep 1000
+	Sleep 500
 	return homePageWb
 }
 
@@ -259,10 +241,8 @@ hiddenIEBar(wb, keystore)
 	Send {%keystore%}
 	Sleep 1000
 	afterClickTop := pWin.screenTop
-	;MsgBox % "Before move top:" (preTop) ", after move Top:" (afterClickTop)
 	if (afterClickTop > preTop)
 	{
-		;MsgBox "Show menu bar hidding it"
 		MouseClick Right
 		Sleep 1000
 		Send {%keystore%}
@@ -277,16 +257,13 @@ closePreIe()
 	Loop, %id%
 	{
 		this_id := id%A_Index% 
-		;WinActivate, ahk_id %this_id%
+		
 		WinGetClass, this_class, ahk_id %this_id%
-		;WinGetTitle, this_title, ahk_id %this_id%
-		;MsgBox % "Class:" (this_class) ", Title:" (this_title)
+		
 		if (this_class = "IEFrame")
 		{
 			WinClose, ahk_id %this_id%;
 		}
-		;If(this_class != "Shell_traywnd") && (this_class != "Button")  ; If class is not Shell_traywnd and not Button
-		;	WinClose, ahk_id %this_id% ;This is what it should be ;MsgBox, This ahk_id %this_id% ; Easier to test ;)
 	}
 }
 

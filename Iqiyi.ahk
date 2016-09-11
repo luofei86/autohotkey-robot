@@ -1,9 +1,7 @@
-﻿homeUrl := "http://www.iqiyi.com/"
-#Include IEDomUtils.ahk
+﻿#Include IEDomUtils.ahk
 #Include LoggerUtils.ahk
-;homeUrl := "about:tabs"
-;homePageWb := gotoHomepage("about:tabs")
 
+homeUrl := "http://www.iqiyi.com/"
 
 IqiyiGotoHomepage()
 {
@@ -17,18 +15,15 @@ IqiyiGotoHomepage()
 	}
 	else
 	{
-		logWarn("Load iqiyi homepage failed")
+		logWarn("Load iqiyi homepage failed, can not find the page." . homeUrl)
 	}
 	return homepageWb
 }
 
-;random access the homepage to Confuse the server
 fuzzyUserRandomAccessWebsite(homepageWb)
 {
 	
 }
-
-
 
 gotoSearchPage(homePageWb, searchKeyword)
 {
@@ -37,24 +32,22 @@ gotoSearchPage(homePageWb, searchKeyword)
 	doSearch(homePageWb, searchKeyword)
 	Sleep 5000
 	searchWb := IEDomGet(searchKeyword)
-	if !searchWb
+	if (!searchWb)
 	{
-		;MsgBox "No get Search page"
-		;list all ie page to decide
 		searchWb := deepthFindSearchResultPage(searchKeyword)
 		if(searchWb)
 		{
+			logInfo("Get the search:" . searchKeyword . " result page wb.")
 			return searchWb
 		}
 		logError("No get Search page by searchword:" . searchKeyword)
 		return
 	}	
 	logInfo("Get the search:" . searchKeyword . " result page wb.")
-	Sleep 500
 	return searchWb
 }
 
-deepthFindSearchResultPage(searchKeyword) ;Retrieve pointer to existing IE window/tab
+deepthFindSearchResultPage(searchKeyword)
 {
     searchWb := IEDomGetByUrl("http://so.iqiyi.com/so/")
 	searchInputEle := findIEElementInDom(searchWb, "data-widget-searchword")
@@ -66,7 +59,8 @@ deepthFindSearchResultPage(searchKeyword) ;Retrieve pointer to existing IE windo
 		}
 	}
 	catch
-	{}
+	{
+	}
 	eles := searchWb.document.getElementsByTagName("div")
 	searchContentEle := findIEElement(eles, "class", "search_content")
 	try
@@ -77,11 +71,13 @@ deepthFindSearchResultPage(searchKeyword) ;Retrieve pointer to existing IE windo
 		}
 	}
 	catch
-	{}
+	{
+	}
 }
 
 doSearch(homePageWb, searchKeyword)
 {
+	IEPageActive(homePageWb)
 	searchForm := homePageWb.document.getElementsByTagName("form")[0]
 	searchInput := searchForm.getElementsByTagName("div")[0].getElementsByTagName("span")[0].getElementsByTagName("input")[0]
 	Sleep 1000
@@ -94,9 +90,9 @@ doSearch(homePageWb, searchKeyword)
 }
 
 
-clickToSearchUrlPage(searchWb, url)
+clickSearchUrlLinkAtSearchResultPage(searchWb, url)
 {
-	Links :=searchWb.document.links
+	Links := searchWb.document.links
 	length := searchWb.document.links.length
 	Loop % length
 	{
@@ -112,7 +108,6 @@ clickToSearchUrlPage(searchWb, url)
 	return false
 }
 
-
 gotoResultUrlPage(url)
 {
 	videoWb := IEDomGetByUrl(url)
@@ -126,7 +121,7 @@ gotoResultUrlPage(url)
 startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
 {
 	flashPlayer := videoWb.document.getElementById("flash")
-	if flashPlayer
+	if (flashPlayer)
 	{
 		paramEles := flashPlayer.getElementsByTagName("param")
 		flashVarsEle := findIEElement(paramEles, "name", "flashVars")
@@ -139,10 +134,10 @@ startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
 				pWin := videoWb.document.parentWindow
 				moveToPosWithBottom(flashPlayer, pWin)
 			}
-				
 		}
-		;moreSleepTimeMis := sleepTimeMis + 60000
 		moreSleepTimeMis := sleepTimeMis + 6000
 		Sleep % moreSleepTimeMis
+		return true
 	}
+	return false
 }

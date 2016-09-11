@@ -8,23 +8,25 @@
 
 WinGetPos,,, desk_width, desk_height, Program Manager
 
-
 Loop
 {
 	try{
-		remoteTaskInfo := ServerApiGetRemoteTaskInfo()
-		taskLength := remoteTaskInfo.tasks.MaxIndex()
-		if (!taskLength || taskLength = 0)
-		{
-			SleepBeforeNextLoop()
-			continue
-		}
+		remoteTaskInfo := ServerApiGetRemoteTaskInfo()		
 		account := remoteTaskInfo.account
 		accountId := account.id
 		accountName := account.name
 		accountPwd := account.pwd
 		if(!account || !accountId || !accountName || !accountPwd)
 		{
+			logError("No account from server.")
+			SleepBeforeNextLoop()
+			continue
+		}
+		taskLength := remoteTaskInfo.tasks.MaxIndex()
+		if (!taskLength || taskLength = 0)
+		{
+			logError("No task from server.")
+			returnAccountToRemoteServer(accountId)
 			SleepBeforeNextLoop()
 			continue
 		}
@@ -33,6 +35,7 @@ Loop
 		if !homepageWb
 		{
 			logError("Load the iqiyi homepage failed.")
+			returnAccountToRemoteServer(accountId)
 			SleepBeforeNextLoop()
 			continue
 		}
@@ -45,19 +48,23 @@ Loop
 			accountLogged := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
 			if (!accountLogged)
 			{
-				logInfo("Logout from the homepage. Pre logined account dose not equal current account." . account.accountName)
+				logInfo("Logout from the homepage. Pre logined account dose not equal current account." . accountName)
 				IqiyiLogoutFromHomepage(homepageWb)
+				IEPageActive(homepageWb)
+				Send {F5}
+				IEDomWait(homepageWb)
 				Sleep 2000
 			}
 		}
 		if (!accountLogged)
 		{
-			logInfo("Login from the homepage.")
+			logInfo("Login from the homepage. accountId:" . accountId)
 			accountLogined := loginFromHomepage(homepageWb, accountName, accountPwd, account.nickname)
 			if (!accountLogined)
 			{
 				logError("Failed to login from the homepage.")
 				reportAccountLoginInfo(accountId, accountLoginInfo.result, accountLoginInfo.info)
+				returnAccountToRemoteServer(accountId)
 				SleepBeforeNextLoop()
 				continue
 			}
@@ -66,23 +73,40 @@ Loop
 				closeIEDomExcludiveHomepageAndReFresh(homepageWb)
 			}
 		}
-		logInfo("Logined the iqiyi account:" . accountName)
-		;play video
+		logInfo("Logined the iqiyi account:" . accountName)		
 		tasks := remoteTaskInfo.tasks
-		;MsgBox , % (tasks[0])
-		;MsgBox , % (tasks[1])
-		Loop % taskLength
+		loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
+		
+		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
+		;restart the route
+		closePreIe()
+		restartRoute()
+	}
+	catch e
+	{
+		logException(e)
+		;return account
+		if (account)
 		{
-			
-			taskInfo := tasks[A_Index]
-			;fuzzyUserRandomAccessWebsite(homepageWb)
-			searchKeyword := taskInfo.searchKeyword
-			;searchUrl := "http://www.iqiyi.com/v_19rrlxsds8.html"
-			url := taskInfo.url
-			duration := taskInfo.duration * 1000
+			returnAccountToRemoteServer(account.id)
+		}
+	}
+}
+
+loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
+{
+	Loop % taskLength
+	{
+		taskInfo := tasks[A_Index]
+		;fuzzyUserRandomAccessWebsite(homepageWb)
+		searchKeyword := taskInfo.searchKeyword			
+		url := taskInfo.url
+		duration := taskInfo.duration * 1000
+		try
+		{
 			IEPageActive(homepageWb)
-			searchWb := gotoSearchPage(homepageWb, searchKeyword)
-			logInfo("Loop the video:" . url)
+			logInfo("Start to search " . searchKeyword .  " at home page.")
+			searchWb := gotoSearchPage(homepageWb, searchKeyword)			
 			if !searchWb
 			{
 				logError("Loop the video:" . url . ", but dose not found by the searchKeyword:" . searchKeyword)
@@ -90,45 +114,51 @@ Loop
 				continue
 			}
 			IEPageActive(searchWb)			
-			logInfo("Click to the search url page:" . url)
-			findResult := clickToSearchUrlPage(searchWb, url)
-			
-			;MsgBox "FIND SEARCH RESULT AND CLICK IT."
-			;findResult := clickToSearchUrlPage(searchWb, url)
-			;wb.quit
+			logInfo("Search url " . url . " on the search result page:")
+			findResult := clickSearchUrlLinkAtSearchResultPage(searchWb, url)
 			if findResult
 			{
 				videoWb := gotoResultUrlPage(url)
 				if videoWb
 				{
-					startAndWaitVideoPlayFinished(videoWb, duration)
-					logInfo("Finished play the video at video page:" . url)					
-					;IEPageActive(videoWb)
-					Sleep 500
+					played := startAndWaitVideoPlayFinished(videoWb, duration)
+					;(accountId, videoId, result, info)
+					if (played)
+					{
+						reportTaskFinishInfo(accountId, taskInfo.id, 0, "Finished")
+						logInfo("Finished play the video at video page:" . url)
+					}
+					else
+					{
+						reportTaskFinishInfo(accountId, taskInfo.id, -1, "Find the video page:" . url . ", But dose not finished play.")
+						logWarn("Can not finished play the video at video page:" . url)
+					}
 					logInfo("Close video page:" . url)
 					closeWb(videoWb)
-					Sleep 2000
+					Sleep 2000					
+				}
+				else
+				{
+					reportTaskFinishInfo(accountId, taskInfo.id, -2, "Can not find video page by url:" . url)
 				}
 				closeWb(searchWb)
 			}
 			else
 			{
-				logInfo("Can not find the search url:" . url . " by search keyword:" . searchKeyword . " in the first search result page.")
+				logWarn("Can not find the search url:" . url . " by search keyword:" . searchKeyword . " in the first search result page.")
+				;(accountId, videoId, result, info)
+				reportTaskUrlFindInfo(accountId, taskInfo.id, -1, "Missed")
 				;goto direct
 			}
-			closeIEDomExcludiveHomepage(homepageWb)			
+			closeIEDomExcludiveHomepage(homepageWb)
 		}
-		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
-		;restart the route
-		closePreIe()
-		restartRoute()
-	}
-	catch
-	{
-		
+		catch e
+		{
+			logException(e)
+			Sleep 500
+		}
 	}
 }
-
 
 
 ^q::
@@ -148,7 +178,7 @@ SleepBeforeNextLoop()
 	closePreIe()
 	try{
 		logInfo("Sleep 30000 before next loop")
-		Sleep 30000
+		Sleep 3000
 	}
 	catch
 	{

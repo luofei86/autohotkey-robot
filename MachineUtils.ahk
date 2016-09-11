@@ -1,6 +1,5 @@
 ﻿;机器相关类
 ;Name  MachineUtils.ahk
-;MsgBox % GetMacAddress()
 
 GetMacAddress(){
 	tempfile = %A_Temp%\mac.txt

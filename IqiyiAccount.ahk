@@ -1,25 +1,31 @@
 ﻿;iqiyi account login logout
-
 #Include IqiyiVcode.ahk
 #Include IEDomUtils.ahk
 #Include IqiyiAccountLoginPage.ahk
+
 secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
 useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
 
 IqiyiAccoountHadAccountLogged(homepageWb)
 {
 	try{
-		return (StrLen(homepageWb.document.getElementById("top-username").innerHTML) > 0)
+		topUserNameEle := getUserLoginedDiv(homepageWb)
+		if (topUserNameEle)
+		{
+			return (StrLen(topUserNameEle.innerHTML) > 0)
+		}		
 	}
 	catch
 	{
 	}
 	return false
 }
+
 IqiyiAccoountIsCurrentLoggedAccount(homepageWb, nickname)
 {
 	try{
-		pageNickname := homepageWb.document.getElementById("top-username").innerHTML
+		topUserNameEle := getUserLoginedDiv(homepageWb)
+		pageNickname := topUserNameEle.innerHTML
 		return pageNickname = nickname
 	}
 	catch
@@ -31,30 +37,37 @@ IqiyiLogoutFromHomepage(homepageWb)
 {
 	if (homepageWb)
 	{
-		userLoginedDiv := getUserLoginedDiv(homepageWb)
-		
-		if (userLoginedDiv)
+		Loop, 10
 		{
-			;MsgBox "Find log out div"
-			userLoginedDiv.click()
-			popDiv := homepageWb.document.getElementById("nav-login-info")
-			if (popDiv)
+			userWidgetDiv := findIEElementInDom(homepageWb, "widget-userregistlogin")
+			if (!userWidgetDiv)
 			{
-				try
+				return false
+			}
+			bbEles := userWidgetDiv.getElementsByTagName("b")
+			if (bbEles)
+			{
+				bbEle := bbEles[0]				
+				bbEle.focus()
+				bbEle.click()
+				divs := homepageWb.document.getElementsByTagName("div")				
+				userBoxDiv := findIEElement(divs, "class", "nav-login-bd")
+				if (userBoxDiv)
 				{
-					popDiv.getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("a")[3].click()
-					Loop, 10
+					;userBoxDiv.focus()
+					ahrefs := userBoxDiv.getElementsByTagName("a")
+					if (ahrefs)
 					{
-						if(isLogout(homepageWb))
+						logoutBtn := findIEElement(ahrefs, "data-delegate", "j-logoutBtn")						
+						if (logoutBtn)
 						{
+							logoutBtn.click()
+							Sleep 2000
 							return true
 						}
-						Sleep 1000
 					}
 				}
-				catch{}
 			}
-			Sleep 2000
 		}
 	}
 	return false
@@ -70,21 +83,9 @@ isLogout(homepageWb)
 	try{
 		widghtUserRegistLoginDiv := homepageWb.document.getElementById("widget-userregistlogin")		
 		ahrefs := widghtUserRegistLoginDiv.getElementsByTagName("a")
-		if (ahrefs)
-		{
-			length := ahrefs.length
-			Loop % length
-			{
-				ahref := ahrefs[A_Index -1]
-				ahrefEleLoginboxElemValue := ahref.getAttribute("data-elem")
-				if (ahrefEleLoginboxElemValue = "topLoginPanel")
-				{
-					innerHTML := ahref.innerHTML
-					MsgBox % (innerHTML)
-					return innerHTML = "登录"
-				}
-			}
-		}
+		searchAhref := findIEElement(ahrefs, "data-elem", "topLoginPanel")
+		innerHTML := searchAhref.innerHTML
+		return innerHTML = "登录"
 	}catch
 	{
 		return False
@@ -97,29 +98,38 @@ loginFromHomepage(homepageWb, loginName, loginPwd, nickname)
 	global useLoginIndexUrl
 	if (homepageWb)
 	{
-		;MsgBox "Pop login div"
-		homepageWb.document.getElementById("widget-userregistlogin").getElementsByTagName("div")[3].getElementsByTagName("div")[0].getElementsByTagName("a")[0].click()
-		Sleep 2000
-		popLoginDiv := homepageWb.document.getElementById("qipaLoginIfr")
-		Sleep 1000
-		if(popLoginDiv)
+		ahrefs := homepageWb.document.getElementById("widget-userregistlogin").getElementsByTagName("a")
+		loginAhref := findIEElementByTwoAttr(ahrefs, "data-elem", "topLoginPanel", "j-delegate", "login")
+		if (loginAhref)
 		{
-			return handleLoginByPoploginDiv(homepageWb, loginName, loginPwd, nickname)
+			loginAhref.focus()
+			loginAhref.click()
+			Sleep 1000
+			popLoginDiv := homepageWb.document.getElementById("qipaLoginIfr")
+			if(popLoginDiv)
+			{
+				return handleLoginByPoploginDiv(homepageWb, loginName, loginPwd, nickname)
+			}
+			else
+			{
+				secureIndexPageWb := IEDomGetByUrl(secureIndexUrl)
+				if (secureIndexPageWb)
+				{
+					return handleLoginBySecureIndexPage(secureIndexPageWb, loginName, loginPwd, nickname)
+				}			
+				loginIndexPageWb := IEDomGetByUrl(useLoginIndexUrl)
+				if(loginIndexPage)
+				{
+					return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd, nickname)
+				}
+				return false
+			}
 		}
 		else
 		{
-			secureIndexPageWb := IEDomGetByUrl(secureIndexUrl)
-			if (secureIndexPageWb)
-			{
-				return handleLoginBySecureIndexPage(secureIndexPageWb, loginName, loginPwd, nickname)
-			}			
-			loginIndexPageWb := IEDomGetByUrl(useLoginIndexUrl)
-			if(loginIndexPage)
-			{
-				return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd, nickname)
-			}
 			return false
 		}
+		
 	}
 	return false
 }

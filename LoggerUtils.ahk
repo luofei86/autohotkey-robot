@@ -10,6 +10,11 @@ logError(loginfo)
 	_logAppend(logInfo, "ERROR")
 }
 
+logException(e)
+{
+	logError("An exception was thrown! Error:" . e.Message . ", File:" . e.File . ", Line:" . e.Line . ", What:" . e.What . ", Extra:" . e.Extra)
+}
+
 logDebug(loginfo)
 {
 	_logAppend(logInfo, "DEBUG")

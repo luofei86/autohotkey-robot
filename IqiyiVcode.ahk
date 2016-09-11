@@ -13,9 +13,14 @@ enterVcode(pageWb, imgEle, inputVcodeEle)
 	pWin := pageWb.document.parentWindow
 	moveToImgEle(pWin, imgEle)
 	imgFileName :=% A_Now
-	imgFileName :=  vcodeImgPath . imgFileName . ".png"
-	imgPath := saveVcodeImg(imgFileName)
-	resultPath := vcodeImgPath . imgFileName . ".txt"
+	imgPath :=  vcodeImgPath . imgFileName . ".png"
+	saveVcodeImg(imgPath)
+	IfNotExist, imgPath
+	{
+		logError("Save vcode img failed.")
+		return false
+	}
+	resultPath := vcodeImgPath . imgFileName . ".txt"	
 	vcode := distinctVcode(imgPath, resultPath)
 	if (!vcode)
 	{
@@ -44,24 +49,19 @@ saveVcodeImg(imgFileName)
 moveToImgEle(pWin, imgEle)
 {
 	pos := findPos(imgEle)
-	;MsgBox % "Cur img Top:" (pos.top) " Left:" (pos.left) "Right:" (pos.right)
 	mouseGoToX := pos.left + pWin.screenLeft  + 30
 	mouseGoToY := pos.top + pWin.screenTop + 30
 	MouseGetPos, xpos, ypos 
 	mouseMoveX := mouseGoToX - xpos
 	mouseMoveY := mouseGoToY - ypos
-	;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)
-	;MsgBox, 0, code img, %	"Left:	"		pos.left + pWin.screenLeft ; left side of element rectagle + left side of screen
-	;							.	"`nTop:	"		pos.top + pWin.screenTop
-	;							.	"`nRight:	"	pos.right + pWin.screenLeft
-	;							.	"`nBottom:	"	pos.bottom + pWin.screenTop
 	MouseMove, mouseMoveX, mouseMoveY, 50, R
 	return true
 }
 
 moveToImg(homepageWb, pWin)
 {
-	table := homepageWb.document.getElementById("qipaLoginIfr").getElementsByTagName("div")[0].getElementsByTagName("div")[0].getElementsByTagName("div")[1].getElementsByTagName("table")[0]
+	tableEles := homepageWb.document.getElementsByTagName("table")
+	table := findIEElement(tableEles, "data-loginbox-elem", "loginTable")
 	tbody := table.getElementsByTagName("tbody")[0]
 	trs :=  tbody.getElementsByTagName("tr")
 	if (trs && trs.length >=3)
@@ -76,24 +76,16 @@ moveToImg(homepageWb, pWin)
 			if (images && images.length >0)
 			{
 				MouseGetPos, xpos, ypos 
-				;MsgBox % "Cur mouse xpos:" (xpos) " ypos:" (ypos)
-				;MsgBox % "pWin xpos:" (pWin.screenLeft) " ypos:" (pWin.screenTop)
 				img := images[0]
 				pos := findPos(img)
-				;MsgBox % "Cur img Top:" (pos.top) " Left:" (pos.left) "Right:" (pos.right)
 				mouseGoToX := pos.left + pWin.screenLeft  + 30
 				mouseGoToY := pos.top + pWin.screenTop + 30
 				mouseMoveX := mouseGoToX - xpos
 				mouseMoveY := mouseGoToY - ypos
-				;MsgBox % "Mouse move X:" (mouseMoveX) ", Mouse move Y:" (mouseMoveY)
-				;MsgBox, 0, code img, %	"Left:	"		pos.left + pWin.screenLeft ; left side of element rectagle + left side of screen
-				;							.	"`nTop:	"		pos.top + pWin.screenTop
-				;							.	"`nRight:	"	pos.right + pWin.screenLeft
-				;							.	"`nBottom:	"	pos.bottom + pWin.screenTop
 				MouseMove, mouseMoveX, mouseMoveY, 50, R
-				return True
+				return true
 			}			
 		}
 	}
-	return False
+	return false
 }
