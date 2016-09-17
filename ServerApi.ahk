@@ -17,28 +17,28 @@ ServerApiGetRemoteTaskInfo()
 	macAddress := GetMacAddress()
 	if macAddress
 	{
-		global taskUrl
-		requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
-		;MsgBox , % (requestUrlWithPara)
-		responseInfo := _sendHttpRequest(requestUrlWithPara)
-		;MsgBox , % (responseInfo)
-		logDebug(responseInfo)
+		;~ global taskUrl
+		;~ requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
+		;~ ;MsgBox , % (requestUrlWithPara)
+		;~ responseInfo := _sendHttpRequest(requestUrlWithPara)
+		;~ ;MsgBox , % (responseInfo)
+		;~ logDebug(responseInfo)
 		;~ MsgBox, % (responseInfo)
-		value := JSON.Load(responseInfo)
-		return value
-		;~ taskInfo := {}
-		;~ Random, rand, 0, 1
-		;~ if (rand)
-		;~ {
-			;~ taskInfo.account := _initAccount1()
-		;~ }
-		;~ else
-		;~ {
-			;~ taskInfo.account := _initAccount()
-		;~ }
+		;~ value := JSON.Load(responseInfo)
+		;~ return value
+		taskInfo := {}
+		Random, rand, 0, 1
+		if (rand)
+		{
+			taskInfo.account := _initAccount1()
+		}
+		else
+		{
+			taskInfo.account := _initAccount()
+		}
 		
-		;~ taskInfo.tasks := _initTasks()
-		;~ return taskInfo
+		taskInfo.tasks := _initTasks()
+		return taskInfo
 	}
 }
 _initAccount()
@@ -70,32 +70,31 @@ _initTasks()
 	task.searchKeyword := "G20"
 	task.url := "http://www.iqiyi.com/lib/m_210812214.html"
 	task.duration := 20
-	tasks.Insert(task)
-	
-	;~ task := {}
-	;~ task.id := 2
-	;~ task.searchKeyword := "G20"
-	;~ task.url := "http://www.iqiyi.com/v_19rrm5n2to.html"
-	;~ task.duration := 20
-	;~ tasks.Insert(task)	
-	;~ task := {}
-	;~ task.id := 3
-	;~ task.searchKeyword := "G20"
-	;~ task.url := "http://www.iqiyi.com/w_19rsva5uxd.html"
-	;~ task.duration := 20
-	;~ tasks.Insert(task)	
-	;~ task := {}
-	;~ task.id := 4
-	;~ task.searchKeyword := "G20"
-	;~ task.url := "http://www.iqiyi.com/w_19rsoreazx.html"
-	;~ task.duration := 20
-	;~ tasks.Insert(task)	
-	;~ task := {}
-	;~ task.id := 5
-	;~ task.searchKeyword := "G20"
-	;~ task.url := "http://www.iqiyi.com/v_19rrm497sg.html"
-	;~ task.duration := 20
-	;~ tasks.Insert(task)	
+	tasks.Insert(task)	
+	task := {}
+	task.id := 2
+	task.searchKeyword := "G20"
+	task.url := "http://www.iqiyi.com/v_19rrm5n2to.html"
+	task.duration := 20
+	tasks.Insert(task)	
+	task := {}
+	task.id := 3
+	task.searchKeyword := "G20"
+	task.url := "http://www.iqiyi.com/w_19rstp7n61.html"
+	task.duration := 20
+	tasks.Insert(task)	
+	task := {}
+	task.id := 4
+	task.searchKeyword := "G20"
+	task.url := "http://www.iqiyi.com/w_19rsoreazx.html"
+	task.duration := 20
+	tasks.Insert(task)	
+	task := {}
+	task.id := 5
+	task.searchKeyword := "G20"
+	task.url := "http://www.iqiyi.com/v_19rrm497sg.html"
+	task.duration := 20
+	tasks.Insert(task)	
 	;~ task := {}
 	;~ task.id := 6
 	;~ task.searchKeyword := "G20"

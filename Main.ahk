@@ -80,7 +80,8 @@ IfNotExist %vcodeImgPath%
 
 Loop
 {
-	try{
+	try
+	{
 		remoteTaskInfo := ServerApiGetRemoteTaskInfo()		
 		account := remoteTaskInfo.account
 		accountId := account.id
@@ -123,7 +124,7 @@ Loop
 				IEPageActive(homepageWb)
 				Send {F5}
 				IEDomWait(homepageWb)
-				Sleep 2000
+				Sleep 500
 			}
 		}
 		if (!accountLogged)
@@ -162,7 +163,6 @@ Loop
 	catch e
 	{
 		logException(e)
-		;return account
 		if (account)
 		{
 			returnAccountToRemoteServer(account.id)
@@ -178,7 +178,6 @@ loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
 		;fuzzyUserRandomAccessWebsite(homepageWb)
 		searchKeyword := taskInfo.searchKeyword			
 		url := taskInfo.url
-		duration := taskInfo.duration * 1000
 		try
 		{
 			IEPageActive(homepageWb)
@@ -195,30 +194,8 @@ loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
 			findResult := clickSearchUrlLinkAtSearchResultPage(searchWb, url)
 			if findResult
 			{
-				videoWb := gotoResultUrlPage(url)
-				if videoWb
-				{
-					played := startAndWaitVideoPlayFinished(videoWb, duration)
-					;(accountId, videoId, result, info)
-					if (played)
-					{
-						reportTaskFinishInfo(accountId, taskInfo.id, 0, "Finished")
-						logInfo("Finished play the video at video page:" . url)
-					}
-					else
-					{
-						reportTaskFinishInfo(accountId, taskInfo.id, -1, "Find the video page:" . url . ", But dose not finished play.")
-						logWarn("Can not finished play the video at video page:" . url)
-					}
-					logInfo("Close video page:" . url)
-					closeWb(videoWb)
-					Sleep 2000					
-				}
-				else
-				{
-					reportTaskFinishInfo(accountId, taskInfo.id, -2, "Can not find video page by url:" . url)
-				}
-				closeWb(searchWb)
+				videoPageWb := gotoResultUrlPage(url)
+				handlePlayVideoTask(videoPageWb, taskInfo, accountId)
 			}
 			else
 			{
@@ -226,6 +203,8 @@ loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
 				;(accountId, videoId, result, info)
 				reportTaskUrlFindInfo(accountId, taskInfo.id, -1, "Missed")
 				;goto direct
+				videoPageWb := IqiyiGotoPage(url)
+				handlePlayVideoTask(videoPageWb, taskInfo, accountId)
 			}
 			closeIEDomExcludiveHomepage(homepageWb)
 		}
@@ -237,6 +216,38 @@ loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
 	}
 }
 
+handlePlayVideoTask(videoPageWb, taskInfo, accountId)
+{
+	if videoPageWb
+	{
+		gotoPlayVideo(videoPageWb, taskInfo, accountId)			
+	}
+	else
+	{
+		reportTaskFinishInfo(accountId, taskInfo.id, -2, "Can not find video page by url:" . taskInfo.url)
+	}
+}
+
+gotoPlayVideo(videoPageWb, taskInfo, accountId)
+{
+	duration := taskInfo.duration * 1000
+	url := taskInfo.url
+	played := startAndWaitVideoPlayFinished(videoPageWb, duration)
+	;(accountId, videoId, result, info)
+	if (played)
+	{
+		reportTaskFinishInfo(accountId, taskInfo.id, 0, "Finished")
+		logInfo("Finished play the video at video page:" . url)
+	}
+	else
+	{
+		reportTaskFinishInfo(accountId, taskInfo.id, -1, "Find the video page:" . url . ", But dose not finished play.")
+		logWarn("Can not finished play the video at video page:" . url)
+	}
+	logInfo("Close video page:" . url)
+	closeWb(videoPageWb)
+	Sleep 2000		
+}
 
 ^q::
 {

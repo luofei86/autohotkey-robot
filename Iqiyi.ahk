@@ -18,6 +18,21 @@ IqiyiGotoHomepage()
 	return homepageWb
 }
 
+IqiyiGotoPage(url)
+{
+	pageWb := gotoUrl(url)
+	if pageWb
+	{
+		WinMaximize, % "ahk_id " pageWb.HWND
+		Sleep 500
+	}
+	else
+	{
+		logWarn("Failed to Load iqiyi page:" . url)
+	}
+	return pageWb
+}
+
 fuzzyUserRandomAccessWebsite(homepageWb)
 {
 	
