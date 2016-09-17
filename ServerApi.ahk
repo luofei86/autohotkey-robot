@@ -17,28 +17,25 @@ ServerApiGetRemoteTaskInfo()
 	macAddress := GetMacAddress()
 	if macAddress
 	{
-		;~ global taskUrl
-		;~ requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
-		;~ ;MsgBox , % (requestUrlWithPara)
-		;~ responseInfo := _sendHttpRequest(requestUrlWithPara)
-		;~ ;MsgBox , % (responseInfo)
-		;~ logDebug(responseInfo)
-		;~ MsgBox, % (responseInfo)
-		;~ value := JSON.Load(responseInfo)
-		;~ return value
-		taskInfo := {}
-		Random, rand, 0, 1
-		if (rand)
-		{
-			taskInfo.account := _initAccount1()
-		}
-		else
-		{
-			taskInfo.account := _initAccount()
-		}
+		global taskUrl
+		requestUrlWithPara := taskUrl . "?macAddress=" . macAddress
+		responseInfo := _sendHttpRequest(requestUrlWithPara)
+		logInfo(responseInfo)
+		value := JSON.Load(responseInfo)
+		return value
+		;~ taskInfo := {}
+		;~ Random, rand, 0, 1
+		;~ if (rand)
+		;~ {
+			;~ taskInfo.account := _initAccount1()
+		;~ }
+		;~ else
+		;~ {
+			;~ taskInfo.account := _initAccount()
+		;~ }
 		
-		taskInfo.tasks := _initTasks()
-		return taskInfo
+		;~ taskInfo.tasks := _initTasks()
+		;~ return taskInfo
 	}
 }
 _initAccount()
