@@ -72,6 +72,12 @@ else
 	loopSleep := 3000
 }
 
+IfNotExist %vcodeImgPath%
+{
+	FileCreateDir, %vcodeImgPath%
+}
+
+
 Loop
 {
 	try{
