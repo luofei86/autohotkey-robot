@@ -24,15 +24,30 @@ moveToPos(left, top)
 	MouseMove, mouseMoveX, mouseMoveY, 50, R
 }
 
+;pWin will throw e catch it and handle with default
 moveToPosWithBottom(ele, pWin)
 {
+	screenLeft := _getPwinScreenLeft(pWin)
 	MouseGetPos, xpos, ypos
 	pos := findPos(ele)
-	mouseGoToX := pos.left + pWin.screenLeft  + 30
+	mouseGoToX := pos.left + screenLeft  + 30
 	mouseGoToY := pos.bottom + + pos.top -5
 	mouseMoveX := mouseGoToX - xpos
 	mouseMoveY := (mouseGoToY - ypos)
 	MouseMove, mouseMoveX, mouseMoveY, 50, R
 	MouseClick, left
 	Sleep 1000
+}
+
+_getPwinScreenLeft(pWin)
+{
+	try
+	{
+		return pWin.screenLeft 
+	}
+	catch
+	{
+		global defaultScreenLeft
+		return defaultScreenLeft
+	}
 }

@@ -1,12 +1,10 @@
 ﻿#Include IEDomUtils.ahk
 #Include LoggerUtils.ahk
 
-homeUrl := "http://www.iqiyi.com/"
-
 IqiyiGotoHomepage()
 {
-	global homeUrl
-	homepageWb := gotoUrl(homeUrl)
+	global homepageUrl
+	homepageWb := gotoUrl(homepageUrl)
 	if homepageWb
 	{
 		WinMaximize, % "ahk_id " homepageWb.HWND
@@ -15,7 +13,7 @@ IqiyiGotoHomepage()
 	}
 	else
 	{
-		logWarn("Load iqiyi homepage failed, can not find the page." . homeUrl)
+		logWarn("Load iqiyi homepage failed, can not find the page." . homepageUrl)
 	}
 	return homepageWb
 }

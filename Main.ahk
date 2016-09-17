@@ -7,6 +7,70 @@
 #Include IEDomUtils.ahk
 
 WinGetPos,,, desk_width, desk_height, Program Manager
+appConfFilePath := A_WorkingDir . "\app.conf"
+IfExist, %appConfFilePath%
+{
+	Loop, read, %appConfFilePath%
+	{
+		arrays := StrSplit(A_LoopReadLine, "=")
+		contentKey := arrays[1]
+		contentValue := arrays[2]
+		if (contentKey = "debugRun")
+		{
+			debugRun := contentValue
+		}
+		else if (contentKey = "homepageUrl")
+		{
+			homepageUrl := contentValue
+		}
+		else if (contentKey = "vcodeImgPath")
+		{
+			vcodeImgPath := contentValue
+		}
+		else if (contentKey = "exePath")
+		{
+			exePath := contentValue
+		}
+		else if (contentKey = "taskUrl")
+		{
+			taskUrl := contentValue
+		}
+		else if (contentKey = "callbackUrl")
+		{
+			callbackUrl := contentValue
+		}
+		else if (contentKey = "secureIndexUrl")
+		{
+			secureIndexUrl := contentValue
+		}
+		else if (contentKey = "useLoginIndexUrl")
+		{
+			useLoginIndexUrl := contentValue
+		}
+		else if (contentKey = "defaultScreenLeft")
+		{
+			defaultScreenLeft := contentValue
+		}
+		else if (contentKey = "loopSleep")
+		{
+			loopSleep := contentValue
+		}
+	}
+	logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", defaultScreenLeft:" . defaultScreenLeft . ", loopSleep:" . loopSleep . "." )
+}
+else
+{
+	debugRun := true
+	homepageUrl :=  "http://www.iqiyi.com/"
+	vcodeImgPath := "C:\vcode\"
+	exePath := "D:\sources\github\autohotkey-vcode\Release\dll.exe"
+	taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
+	callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
+	secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
+	useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
+	defaultScreenLeft  := 100
+	loopSleep := 3000
+}
 
 Loop
 {
@@ -59,18 +123,25 @@ Loop
 		if (!accountLogged)
 		{
 			logInfo("Login from the homepage. accountId:" . accountId)
-			accountLogined := loginFromHomepage(homepageWb, accountName, accountPwd, account.nickname)
-			if (!accountLogined)
+			accountLoginInfo := loginFromHomepage(homepageWb, account)
+			if (!accountLoginInfo.result)
 			{
-				logError("Failed to login from the homepage.")
-				reportAccountLoginInfo(accountId, accountLoginInfo.result, accountLoginInfo.info)
+				logError("Failed to login from the homepage.Errmsg:" . accountLoginInfo.info)
+				reportAccountLoginInfo(accountId, -1, accountLoginInfo.info)
 				returnAccountToRemoteServer(accountId)
 				SleepBeforeNextLoop()
 				continue
 			}
 			else
 			{
-				closeIEDomExcludiveHomepageAndReFresh(homepageWb)
+				if (accountLoginInfo.byPop = 1)
+				{
+					closeIEDomExcludiveHomepageAndReFresh(homepageWb)
+				}
+				else
+				{
+					Sleep 500
+				}
 			}
 		}
 		logInfo("Logined the iqiyi account:" . accountName)		
@@ -175,10 +246,11 @@ restartRoute()
 
 SleepBeforeNextLoop()
 {
+	global loopSleep
 	closePreIe()
 	try{
 		logInfo("Sleep 30000 before next loop")
-		Sleep 3000
+		Sleep %loopSleep%
 	}
 	catch
 	{

@@ -3,8 +3,6 @@
 #Include IEDomUtils.ahk
 #Include IqiyiAccountLoginPage.ahk
 
-secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
-useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
 
 IqiyiAccoountHadAccountLogged(homepageWb)
 {
@@ -91,9 +89,16 @@ isLogout(homepageWb)
 		return False
 	}
 }
-
-loginFromHomepage(homepageWb, loginName, loginPwd, nickname)
+;accountName, accountPwd, account.nickname
+;accountLoginInfo.result = 0 ok
+;accountLoginInfo.info
+;accountLoginInfo.byPop = 0:yes; 1:no; -1:dose not action login
+loginFromHomepage(homepageWb, account)
 {
+	accountLoginInfo := {"result": false, "info": "", "byPop": -1}
+	;~ accountLoginInfo.result := false
+	;~ accountLoginInfo.info := ""
+	;~ accountLoginInfo.byPop := -1
 	global secureIndexUrl
 	global useLoginIndexUrl
 	if (homepageWb)
@@ -108,7 +113,7 @@ loginFromHomepage(homepageWb, loginName, loginPwd, nickname)
 			popLoginDiv := homepageWb.document.getElementById("qipaLoginIfr")
 			if(popLoginDiv)
 			{
-				return handleLoginByPoploginDiv(homepageWb, loginName, loginPwd, nickname)
+				return handleLoginByPoploginDiv(homepageWb, account)
 			}
 			else
 			{
@@ -122,39 +127,99 @@ loginFromHomepage(homepageWb, loginName, loginPwd, nickname)
 				{
 					return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd, nickname)
 				}
-				return false
+				accountLoginInfo.info := "No login elements."
+				return accountLoginInfo
 			}
 		}
 		else
 		{
-			return false
+			accountLoginInfo.info := "No login href"
 		}
-		
 	}
-	return false
+	else
+	{
+		accountLoginInfo.info := "No page info."
+	}
+	return accountLoginInfo
 }
 
-handleLoginByPoploginDiv(homepageWb, loginName, loginPwd, nickname)
+handleLoginByPoploginDiv(homepageWb, account)
 {
+	accountLoginInfo := {"result": false, "info": "", "byPop": 0}
 	Loop, 2
 	{
-		doLogin := loginFromHomePopPage(homepageWb, loginName, loginPwd)
+		doLogin := loginFromHomePopPage(homepageWb, account.name, account.pwd)
 		if(doLogin)
 		{
-			logined := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, nickname)
+			logined := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
 			if(logined)
 			{
-				return true
+				accountLoginInfo.result :=true
+				return accountLoginInfo
+			}else{
+				loginFailedType := findLoginFailedType()
+				if (loginFailedType = "ERROR_VCODE")
+				{
+					continue
+				}
+				else if(loginFailedType = "ERROR_PWD")
+				{
+					;登录失败汇报
+					accountLoginInfo.info := "账号密码错误"
+					return accountLoginInfo
+				}else {					
+					accountLoginInfo.info := loginFailedType
+					return accountLoginInfo
+				}
 			}
-			continue
 		}
-		return false
+		else
+		{
+			accountLoginInfo.info := "无法完成登录信息输入."
+		}
+		return accountLoginInfo
 	}
-	return false
+	return accountLoginInfo
+}
+
+findLoginFailedType(){
+	;get current page
+	global homepageUrl
+	homepageWb := IEDomGetByUrl(homepageUrl)
+	if (homepageWb)
+	{
+		popLoginDiv := findIEElementInDom(homepageWb, "qipaLoginIfr")
+		if (popLoginDiv)
+		{
+			;请输入图文验证码
+			divEles := popLoginDiv.getElementsByTagName("div")
+			errDivEle := findIEElement(divEles, "data-loginbox-elem", "errDom")
+			if (errDivEle)
+			{
+				errorHtml := errDivEle.innerHTML
+				if (errorHtml = "请输入图文验证码")
+				{
+					return "ERROR_VCODE"
+				}else if(errorHtml = "帐号或密码错误")
+				{
+					return "ERROR_PWD"
+				}
+				else
+				{
+					logError("Find err div ele innerhtml:" . errorHtml . " when login failed.")
+					return "ERROR_UNKNOWN"
+				}
+			}
+			return "ERROR_NOERRDIV"
+		}
+		return "ERROR_NOPOPLOGINDIV"
+	}
+	return "ERROR_NOHOMEPAGE"
 }
 
 handleLoginBySecureIndexPage(loginPageWb, loginName, loginPwd, nickname)
 {
+	accountLoginInfo := {"result": false, "info": "", "byPop": 1}
 	global secureIndexUrl
 	Loop, 2
 	{
@@ -164,17 +229,24 @@ handleLoginBySecureIndexPage(loginPageWb, loginName, loginPwd, nickname)
 			alsoExistLoginPageWb := IEDomGetByUrl(secureIndexUrl)
 			if (!alsoExistLoginPageWb)
 			{
-				return true
+				accountLoginInfo.result := true
+				return accountLoginInfo
 			}
 			continue
 		}
-		return false
+		else
+		{
+			accountLoginInfo.info := "无法完成登录信息输入."
+			return accountLoginInfo
+		}
 	}
-	return false
+	accountLoginInfo.info := "登录失败"
+	return accountLoginInfo
 }
 
 handleLoginByLoginIndexPage(loginPageWb, loginName, loginPwd, nickname)
 {
+	accountLoginInfo := {"result": false, "info": "", "byPop": 1}
 	global useLoginIndexUrl
 	Loop, 2
 	{
@@ -184,11 +256,17 @@ handleLoginByLoginIndexPage(loginPageWb, loginName, loginPwd, nickname)
 			alsoExistLoginPageWb := IEDomGetByUrl(useLoginIndexUrl)
 			if (!alsoExistLoginPageWb)
 			{
-				return true
+				accountLoginInfo.result := true
+				return accountLoginInfo
 			}
 			continue
 		}
-		return false
+		else
+		{
+			accountLoginInfo.info := "无法完成登录信息输入."
+			return accountLoginInfo
+		}
 	}
-	return false
+	accountLoginInfo.info := "登录失败"
+	return accountLoginInfo
 }

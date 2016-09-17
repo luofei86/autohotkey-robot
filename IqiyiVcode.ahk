@@ -3,7 +3,7 @@
 #Include IEDomUtils.ahk
 #Include WinExe.ahk
 
-vcodeImgPath := "C:\vcode\"
+;~ vcodeImgPath := "C:\vcode\"
 
 enterVcode(pageWb, imgEle, inputVcodeEle)
 {
@@ -15,7 +15,7 @@ enterVcode(pageWb, imgEle, inputVcodeEle)
 	imgFileName :=% A_Now
 	imgPath :=  vcodeImgPath . imgFileName . ".png"
 	saveVcodeImg(imgPath)
-	IfNotExist, imgPath
+	IfNotExist, %imgPath%
 	{
 		logError("Save vcode img failed.")
 		return false

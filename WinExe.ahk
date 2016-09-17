@@ -1,8 +1,8 @@
 #Include LoggerUtils.ahk
 ;exePath := "E:\source\cplusdemo\autohotkeyexe\autohotkeyexe\Release\autohotkeyexe.exe"
 ;localtest
-exePath := "D:\sources\github\autohotkey-vcode\Release\dll.exe"
-exePath := "C:\auto\vcode\dll.exe"
+;~ exePath := "D:\sources\github\autohotkey-vcode\Release\dll.exe"
+;exePath := "C:\auto\vcode\dll.exe"
 
 distinctVcode(vcodeImgPath, vcodeResultPath)
 {

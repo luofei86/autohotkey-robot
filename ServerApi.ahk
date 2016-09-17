@@ -3,9 +3,6 @@
 #Include LoggerUtils.ahk
 #Include json\JSON.ahk
 
-taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
-callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
-
 ServerApiStrRemoteTaskInfo(remoteTaskInfo)
 {
 	if remoteTaskInfo

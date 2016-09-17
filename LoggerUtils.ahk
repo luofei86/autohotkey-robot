@@ -32,6 +32,11 @@ logInfo(loginfo)
 
 _logAppend(logInfo, level := "INFO")
 {
+	global debugRun
+	if (!debugRun and level = "DEBUG")
+	{
+		return
+	}
 	global writeLock
 	if writeLock = 0
 	{
