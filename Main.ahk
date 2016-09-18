@@ -55,6 +55,10 @@ IfExist, %appConfFilePath%
 		{
 			loopSleep := contentValue
 		}
+		else if (contentKey = "supportAdsl")
+		{
+			supportAdsl := supportAdsl
+		}
 	}
 	logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", defaultScreenLeft:" . defaultScreenLeft . ", loopSleep:" . loopSleep . "." )
 }
@@ -68,15 +72,15 @@ else
 	callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
 	secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
 	useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
-	defaultScreenLeft  := 100
+	defaultScreenLeft  := 0
 	loopSleep := 3000
+	supportAdsl := false
 }
 
 IfNotExist %vcodeImgPath%
 {
 	FileCreateDir, %vcodeImgPath%
 }
-
 
 Loop
 {
@@ -120,7 +124,12 @@ Loop
 			if (!accountLogged)
 			{
 				logInfo("Logout from the homepage. Pre logined account dose not equal current account." . accountName)
-				IqiyiLogoutFromHomepage(homepageWb)
+				logout := IqiyiLogoutFromHomepage(homepageWb)
+				if (!logout)
+				{
+					logError("Logout from homepage failed.")
+					continue
+				}
 				IEPageActive(homepageWb)
 				Send {F5}
 				IEDomWait(homepageWb)
@@ -158,7 +167,10 @@ Loop
 		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
 		;restart the route
 		closePreIe()
-		restartRoute()
+		if (supportAdsl)
+		{
+			restartRoute()
+		}
 	}
 	catch e
 	{
@@ -258,13 +270,32 @@ gotoPlayVideo(videoPageWb, taskInfo, accountId)
 
 restartRoute()
 {
+	stopRasdialFilePath := A_WorkingDir . "\stop_rasdial.bat"
+	startRasdialFilePath := A_WorkingDir . "\start_rasdial.bat"
+	if not A_IsAdmin
+	{
+	   Run, *RunAs %stopRasdialFilePath%
+   }
+	else
+	{
+		Run, %stopRasdialFilePath%
+	}
+	Sleep 5000
+	if not A_IsAdmin
+	{
+	   Run, *RunAs %startRasdialFilePath%
+   }
+	else
+	{
+		Run, %startRasdialFilePath%
+	}
 	SleepBeforeNextLoop()
 }
 
 SleepBeforeNextLoop()
 {
-	global loopSleep
 	closePreIe()
+	global loopSleep
 	try{
 		logInfo("Sleep 30000 before next loop")
 		Sleep %loopSleep%

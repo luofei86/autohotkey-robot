@@ -7,6 +7,7 @@
 	3）vcodeImgPath：验证码存储路径，系统会自动创建，请保证用户有创建权限
 	4）exePath:验证码识别程序地址，解决当前vcode目录中的exe即为程序执行exe
 	5）defaultScreenLeft：默认ie打开时dom win与屏幕的左边差。由于有的windows系统精简，程序可能获取此值会失败，所以请手工设计此值，此值默认为0即可。
+	6）supportAdsl：默认为false，即不支持重启adsl宽带连接
 
 3、在运行时，需确认vcode中的dll.exe是否可正常执行。验证过程如下，在解决文件完成（vcode.rar）后，在cmd中，进入vcode的解压目录，执行dll.exe imgPath resultPath,如果程序能正常结束，即可在resultPath中看到imgPath中的验证码。
 
@@ -17,6 +18,10 @@
 	4）不显示命名栏，收藏栏及菜单栏
 	5）在关闭IE tabls选择关闭所有，并且下次不再提示
 	6）取消在IE启动时对默认浏览器选项的检查
+
+5、宽带连接设置
+	1）宽带连接文件见目录下的start_rasdial.bat文件，在正式运行中，如果可以重启adsl，则请修改此文件，07149905141为adsl账号，请用自己的账号代替 123789为adsl密码，请用自己密码代替。
+
 
 
 

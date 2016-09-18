@@ -48,15 +48,35 @@ IqiyiLogoutFromHomepage(homepageWb)
 				bbEle := bbEles[0]				
 				bbEle.focus()
 				bbEle.click()
-				divs := homepageWb.document.getElementsByTagName("div")				
+				global homepageUrl
+				refershHomepageWb := IEDomGetByUrl(homepageUrl)
+				divs := refershHomepageWb.document.getElementsByTagName("div")
 				userBoxDiv := findIEElement(divs, "class", "nav-login-bd")
+				logDebug("Goto find logout pop div.")
 				if (userBoxDiv)
 				{
-					;userBoxDiv.focus()
 					ahrefs := userBoxDiv.getElementsByTagName("a")
 					if (ahrefs)
 					{
-						logoutBtn := findIEElement(ahrefs, "data-delegate", "j-logoutBtn")						
+						logoutBtn := findIEElement(ahrefs, "data-delegate", "j-logoutBtn")
+						logDebug("Goto find logout btn")
+						if (logoutBtn)
+						{
+							logoutBtn.click()
+							Sleep 2000
+							return true
+						}
+					}
+				}
+				else
+				{
+					;有的浏览器无法找到这个新弹出的div
+					ahrefs := refershHomepageWb.document.getElementsByTagName("a")
+					
+					if (ahrefs)
+					{
+						logoutBtn := findIEElement(ahrefs, "data-delegate", "j-logoutBtn")
+						logDebug("Goto find logout btn")
 						if (logoutBtn)
 						{
 							logoutBtn.click()
@@ -93,6 +113,7 @@ isLogout(homepageWb)
 ;accountLoginInfo.result = 0 ok
 ;accountLoginInfo.info
 ;accountLoginInfo.byPop = 0:yes; 1:no; -1:dose not action login
+;由于示正确填写nickname，所以对于用户登录后是否正确登录的判断取消，改为判断是否存在用户名
 loginFromHomepage(homepageWb, account)
 {
 	accountLoginInfo := {"result": false, "info": "", "byPop": -1}
@@ -120,12 +141,12 @@ loginFromHomepage(homepageWb, account)
 				secureIndexPageWb := IEDomGetByUrl(secureIndexUrl)
 				if (secureIndexPageWb)
 				{
-					return handleLoginBySecureIndexPage(secureIndexPageWb, loginName, loginPwd, nickname)
+					return handleLoginBySecureIndexPage(secureIndexPageWb, loginName, loginPwd)
 				}			
 				loginIndexPageWb := IEDomGetByUrl(useLoginIndexUrl)
 				if(loginIndexPage)
 				{
-					return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd, nickname)
+					return handleLoginByLoginIndexPage(loginIndexPageWb, loginName, loginPwd)
 				}
 				accountLoginInfo.info := "No login elements."
 				return accountLoginInfo
@@ -151,10 +172,20 @@ handleLoginByPoploginDiv(homepageWb, account)
 		doLogin := loginFromHomePopPage(homepageWb, account.name, account.pwd)
 		if(doLogin)
 		{
-			logined := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
+			;~ logined := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
+			logined := IqiyiAccoountHadAccountLogged(homepageWb)
 			if(logined)
 			{
-				accountLoginInfo.result :=true
+				accountBanned := isAccountBanned()
+				if(accountBanned)
+				{
+					accountLoginInfo.result := false
+					accountLoginInfo.info := "Account banned."
+				}
+				else
+				{
+					accountLoginInfo.result :=true
+				}
 				return accountLoginInfo
 			}else{
 				loginFailedType := findLoginFailedType()
@@ -182,6 +213,14 @@ handleLoginByPoploginDiv(homepageWb, account)
 	return accountLoginInfo
 }
 
+isAccountBanned()
+{
+	global homepageUrl
+	wb := IEDomGetByUrl(homepageUrl)
+	innerHtml := wb.document.getElementsByTagName("body")[0].innerHTML
+	return Instr(innerHtml, "账号因使用异常已被封停")
+}
+
 findLoginFailedType(){
 	;get current page
 	global homepageUrl
@@ -197,7 +236,7 @@ findLoginFailedType(){
 			if (errDivEle)
 			{
 				errorHtml := errDivEle.innerHTML
-				if (errorHtml = "请输入图文验证码")
+				if (errorHtml = "请输入图文验证码" or errorHtml = "请输入验证码")
 				{
 					return "ERROR_VCODE"
 				}else if(errorHtml = "帐号或密码错误")
@@ -217,7 +256,7 @@ findLoginFailedType(){
 	return "ERROR_NOHOMEPAGE"
 }
 
-handleLoginBySecureIndexPage(loginPageWb, loginName, loginPwd, nickname)
+handleLoginBySecureIndexPage(loginPageWb, loginName, loginPwd)
 {
 	accountLoginInfo := {"result": false, "info": "", "byPop": 1}
 	global secureIndexUrl
@@ -244,7 +283,7 @@ handleLoginBySecureIndexPage(loginPageWb, loginName, loginPwd, nickname)
 	return accountLoginInfo
 }
 
-handleLoginByLoginIndexPage(loginPageWb, loginName, loginPwd, nickname)
+handleLoginByLoginIndexPage(loginPageWb, loginName, loginPwd)
 {
 	accountLoginInfo := {"result": false, "info": "", "byPop": 1}
 	global useLoginIndexUrl

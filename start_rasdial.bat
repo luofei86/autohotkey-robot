@@ -1,0 +1,1 @@
+rasdial "¿í´øÁ¬½Ó" 07149905141 123789 >>E:\source\github\autohotkey-robot\start_rasdial_result.txt

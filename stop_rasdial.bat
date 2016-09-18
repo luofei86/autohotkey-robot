@@ -1,0 +1,1 @@
+rasdial ¿í´øÁ¬½Ó /disconnect
