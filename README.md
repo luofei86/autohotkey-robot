@@ -1,12 +1,20 @@
 # autohotkey-robot
 部署时注意事项：
+
 1、执行环境WIN7 64位 IE7/8
+
 2、文件配置注意事项
+
 	1）格式严格按照key=value的方式，中间不可出现空格
+	
 	2）debugRun:当前运行模式，为true会打印更多运行日志
+	
 	3）vcodeImgPath：验证码存储路径，系统会自动创建，请保证用户有创建权限
+	
 	4）exePath:验证码识别程序地址，解决当前vcode目录中的exe即为程序执行exe
-	5）defaultScreenLeft：默认ie打开时dom win与屏幕的左边差。由于有的windows系统精简，程序可能获取此值会失败，所以请手工设计此值，此值默认为0即可。
+	
+	5）defaultIEBarTop：默认ie打开时dom	win与屏幕的顶边差。由于有的windows系统精简，程序可能获取此值会失败，所以请手工设计此值，此值默认为0即可。
+	
 	6）supportAdsl：默认为false，即不支持重启adsl宽带连接
 
 3、在运行时，需确认vcode中的dll.exe是否可正常执行。验证过程如下，在解决文件完成（vcode.rar）后，在cmd中，进入vcode的解压目录，执行dll.exe imgPath resultPath,如果程序能正常结束，即可在resultPath中看到imgPath中的验证码。
