@@ -102,19 +102,19 @@ doSearch(homePageWb, searchKeyword)
 	Send {Enter}
 }
 
-
 clickSearchUrlLinkAtSearchResultPage(searchWb, url)
 {
+	findUrl := formatUrl(url)
 	Links := searchWb.document.links
 	length := searchWb.document.links.length
 	Loop % length
 	{
 		anchorLink := Links[A_index-1]
 		href := anchorLink.getAttribute("href")
-		if InStr(href, url)
+		if InStr(href, findUrl)
 		{
 			anchorLink.click()
-			logInfo("Click to access the search url:" . url)
+			logInfo("Click to access the search url:" . findUrl)
 			return true
 		}
 	}
@@ -148,7 +148,9 @@ startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
 				moveToPosWithBottom(flashPlayer, pWin)
 			}
 		}
-		moreSleepTimeMis := sleepTimeMis + 6000
+		global adTimeMis
+		;80000 ad time
+		moreSleepTimeMis := sleepTimeMis + adTimeMis
 		Sleep % moreSleepTimeMis
 		return true
 	}

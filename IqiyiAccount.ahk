@@ -117,9 +117,6 @@ isLogout(homepageWb)
 loginFromHomepage(homepageWb, account)
 {
 	accountLoginInfo := {"result": false, "info": "", "byPop": -1}
-	;~ accountLoginInfo.result := false
-	;~ accountLoginInfo.info := ""
-	;~ accountLoginInfo.byPop := -1
 	global secureIndexUrl
 	global useLoginIndexUrl
 	if (homepageWb)

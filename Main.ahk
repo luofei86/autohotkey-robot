@@ -59,6 +59,10 @@ IfExist, %appConfFilePath%
 		{
 			supportAdsl := supportAdsl
 		}
+		else if (contentKey = "adTimeMis")
+		{
+			adTimeMis := adTimeMis
+		}
 	}
 	logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", defaultScreenLeft:" . defaultScreenLeft . ", loopSleep:" . loopSleep . "." )
 }
@@ -75,6 +79,7 @@ else
 	defaultScreenLeft  := 0
 	loopSleep := 3000
 	supportAdsl := false
+	adTimeMis := 6000
 }
 
 IfNotExist %vcodeImgPath%
@@ -114,6 +119,7 @@ Loop
 			SleepBeforeNextLoop()
 			continue
 		}
+		closeIEDomExcludiveHomepage(homepageUrl)
 		Sleep 500
 		logInfo("Get the iqiyi homepage account login status.")
 		logged := IqiyiAccoountHadAccountLogged(homepageWb)
@@ -134,6 +140,7 @@ Loop
 				Send {F5}
 				IEDomWait(homepageWb)
 				Sleep 500
+				homepageWb := IEDomGetByUrl(homepageUrl)
 			}
 		}
 		if (!accountLogged)
@@ -152,7 +159,7 @@ Loop
 			{
 				if (accountLoginInfo.byPop = 1)
 				{
-					closeIEDomExcludiveHomepageAndReFresh(homepageWb)
+					closeIEDomExcludiveHomepageAndReFresh(homepageWb, homepageUrl)
 				}
 				else
 				{
@@ -160,6 +167,7 @@ Loop
 				}
 			}
 		}
+		closeIEDomExcludiveHomepage(homepageUrl)
 		logInfo("Logined the iqiyi account:" . accountName)		
 		tasks := remoteTaskInfo.tasks
 		loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
@@ -184,21 +192,22 @@ Loop
 
 loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
 {
+	global homepageUrl
 	Loop % taskLength
 	{
 		taskInfo := tasks[A_Index]
-		;fuzzyUserRandomAccessWebsite(homepageWb)
 		searchKeyword := taskInfo.searchKeyword			
 		url := taskInfo.url
 		try
 		{
-			IEPageActive(homepageWb)
+			homepageWb := IEDomGetByUrl(homepageUrl)
+			IEPageActive(homepageWb)			
 			logInfo("Start to search " . searchKeyword .  " at home page.")
 			searchWb := gotoSearchPage(homepageWb, searchKeyword)			
 			if !searchWb
 			{
 				logError("Loop the video:" . url . ", but dose not found by the searchKeyword:" . searchKeyword)
-				closeIEDomExcludiveHomepage(homepageWb)
+				closeIEDomExcludiveHomepage(homepageUrl)
 				continue
 			}
 			IEPageActive(searchWb)			
@@ -218,7 +227,7 @@ loopPlayVideoTasks(homepageWb, tasks, taskLength, accountId)
 				videoPageWb := IqiyiGotoPage(url)
 				handlePlayVideoTask(videoPageWb, taskInfo, accountId)
 			}
-			closeIEDomExcludiveHomepage(homepageWb)
+			closeIEDomExcludiveHomepage(homepageUrl)
 		}
 		catch e
 		{

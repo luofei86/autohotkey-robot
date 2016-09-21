@@ -36,9 +36,9 @@ SetInputEleValue(inputEle, value)
 	}
 }
 
-closeIEDomExcludiveHomepage(homepageWb)
+closeIEDomExcludiveHomepage(homepageUrl)
 {
-	if (!homepageWb)
+	if (!homepageUrl)
 	{
 		return
 	}
@@ -49,11 +49,14 @@ closeIEDomExcludiveHomepage(homepageWb)
 		{
 			try
 			{
-				curHwnd := wb.HWND
-				if(curHwnd != homepageWbHwnd)
+				wbUrl := wb.document.URL
+				IEDomWait(wb)
+				if InStr(wbUrl, homepageUrl)
 				{
-					closeWb(wb)
+						continue
 				}
+				Send {Enter}
+				closeWb(wb)
 			}
 			catch e
 			{}
@@ -61,9 +64,9 @@ closeIEDomExcludiveHomepage(homepageWb)
 	}	
 }
 
-closeIEDomExcludiveHomepageAndReFresh(homepageWb)
+closeIEDomExcludiveHomepageAndReFresh(homepageWb, homepageUrl)
 {
-	closeIEDomExcludiveHomepage(homepageWb)
+	closeIEDomExcludiveHomepage(homepageUrl)
 	Sleep 500
 	IEPageActive(homepageWb)
 	Send {F5}
@@ -73,6 +76,7 @@ closeIEDomExcludiveHomepageAndReFresh(homepageWb)
 
 IEDomGetByUrl(url)
 {
+	findUrl := formatUrl(url)
     For wb in ComObjCreate( "Shell.Application" ).Windows
 	{
 		if InStr(wb.FullName, "iexplore.exe" )
@@ -81,7 +85,7 @@ IEDomGetByUrl(url)
 			{
 				wbUrl := wb.document.URL
 				IEDomWait(wb)
-				if InStr(wbUrl, url)
+				if InStr(wbUrl, findUrl)
 				{
 					return wb
 				}
@@ -90,6 +94,19 @@ IEDomGetByUrl(url)
 			{}
 		}
 	}
+}
+
+;remove url starts with #
+;example http://www.iqiyi.com/v_19rrmbr34s.html#vfrm=13-0-0-1
+;return http://www.iqiyi.com/v_19rrmbr34s.html
+formatUrl(url)
+{
+	foundPos := InStr(url, "#")
+	if (foundPos)
+	{
+		return SubStr(url, 1, foundPos - 1)
+	}
+	return url
 }
 
 IEDomGet(name = "") ;Retrieve pointer to existing IE window/tab
