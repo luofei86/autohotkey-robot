@@ -131,7 +131,7 @@ loginFromHomepage(homepageWb, account)
 			popLoginDiv := homepageWb.document.getElementById("qipaLoginIfr")
 			if(popLoginDiv)
 			{
-				return handleLoginByPoploginDiv(homepageWb, account)
+				return handleLoginByPoploginDiv(account)
 			}
 			else
 			{
@@ -161,8 +161,10 @@ loginFromHomepage(homepageWb, account)
 	return accountLoginInfo
 }
 
-handleLoginByPoploginDiv(homepageWb, account)
+handleLoginByPoploginDiv(account)
 {
+	global homepageUrl
+	homepageWb := IEDomGetByUrl(homepageUrl)
 	accountLoginInfo := {"result": false, "info": "", "byPop": 0}
 	Loop, 2
 	{
@@ -195,7 +197,7 @@ handleLoginByPoploginDiv(homepageWb, account)
 					;登录失败汇报
 					accountLoginInfo.info := "账号密码错误"
 					return accountLoginInfo
-				}else {					
+				}else {
 					accountLoginInfo.info := loginFailedType
 					return accountLoginInfo
 				}
@@ -233,10 +235,11 @@ findLoginFailedType(){
 			if (errDivEle)
 			{
 				errorHtml := errDivEle.innerHTML
-				if (errorHtml = "请输入图文验证码" or errorHtml = "请输入验证码")
+				logError("Login failed get result:" . errorHtml)
+				if (InStr(errorHtml, "验证码"))
 				{
 					return "ERROR_VCODE"
-				}else if(errorHtml = "帐号或密码错误")
+				}else if(InStr(errorHtml, "密码"))
 				{
 					return "ERROR_PWD"
 				}

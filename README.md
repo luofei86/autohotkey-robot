@@ -7,21 +7,19 @@
 
 	1）格式严格按照key=value的方式，中间不可出现空格
 	
-	2）debugRun:当前运行模式，为true会打印更多运行日志
+	2）debugRun:当前运行模式，为1会打印更多运行日志
 	
 	3）vcodeImgPath：验证码存储路径，系统会自动创建，请保证用户有创建权限
 	
 	4）exePath:验证码识别程序地址，解决当前vcode目录中的exe即为程序执行exe
 	
-	5）vcodex,vcodey。
-	
-		a)点击InitVcodePos.exe
+	5）pwinLeft, pwinTop
 
-		b)打开IE浏览器，进入iqiyi后，点击登录，输入任意账号和错误密码，直到验证码出现
+		a)pwinLeft一般都为0
 
-		c)将鼠标移到验证码上，按ctrl+g 将会弹出vcodex:? vcodey? 即你需要在app.conf中设置的值
+		b)pwinTop不同浏览器有不同的值，一般为89，可自行微调，控制验证码的定位
 	
-	6）supportAdsl：默认为false，即不支持重启adsl宽带连接
+	6）supportAdsl：默认为0，即不支持重启adsl宽带连接
 
 3、在运行时，需确认vcode中的dll.exe是否可正常执行。验证过程如下，在解决文件完成（vcode.rar）后，在cmd中，进入vcode的解压目录，执行dll.exe imgPath resultPath,如果程序能正常结束，即可在resultPath中看到imgPath中的验证码。
 

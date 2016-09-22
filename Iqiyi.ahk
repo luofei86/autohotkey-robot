@@ -99,7 +99,11 @@ doSearch(homePageWb, searchKeyword)
 	searchInput.click()
 	searchInput.value := searchKeyword
 	Sleep 1000
-	Send {Enter}
+	searchBtn := searchForm.getElementsByTagName("div")[0].getElementsByTagName("span")[1].getElementsByTagName("input")[0]
+	if (searchBtn)
+	{
+		searchBtn.click()
+	}
 }
 
 clickSearchUrlLinkAtSearchResultPage(searchWb, url)

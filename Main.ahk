@@ -7,6 +7,19 @@
 #Include IEDomUtils.ahk
 
 WinGetPos,,, desk_width, desk_height, Program Manager
+debugRun := 1
+homepageUrl :=  "http://www.iqiyi.com/"
+vcodeImgPath := "C:\vcode\"
+exePath := "D:\sources\github\autohotkey-vcode\Release\dll.exe"
+taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
+callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
+secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
+useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
+pwinLeft := 0
+pwinTop := 89
+loopSleep := 3000
+supportAdsl := 0
+adTimeMis := 6000
 appConfFilePath := A_WorkingDir . "\app.conf"
 IfExist, %appConfFilePath%
 {
@@ -47,13 +60,13 @@ IfExist, %appConfFilePath%
 		{
 			useLoginIndexUrl := contentValue
 		}
-		else if (contentKey = "vcodex")
+		else if (contentKey = "pwinLeft")
 		{
-			vcodex := contentValue
+			pwinLeft := contentValue
 		}
-		else if (contentKey = "vcodey")
+		else if (contentKey = "pwinTop")
 		{
-			vcodey := contentValue
+			pwinTop := contentValue
 		}
 		else if (contentKey = "loopSleep")
 		{
@@ -68,30 +81,14 @@ IfExist, %appConfFilePath%
 			adTimeMis := adTimeMis
 		}
 	}
-	logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", vcodex:" . vcodex . ", vcodey:" . vcodey . ", loopSleep:" . loopSleep . "." )
 }
-else
-{
-	debugRun := true
-	homepageUrl :=  "http://www.iqiyi.com/"
-	vcodeImgPath := "C:\vcode\"
-	exePath := "D:\sources\github\autohotkey-vcode\Release\dll.exe"
-	taskUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.php"
-	callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
-	secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
-	useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
-	vcodex := 964
-	vcodey := 400
-	loopSleep := 3000
-	supportAdsl := false
-	adTimeMis := 6000
-}
+logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", pwinLeft:" . pwinLeft . ", pwinTop:" . pwinTop . ", loopSleep:" . loopSleep . "." . ", supportAdsl:" . supportAdsl . ", adTimeMis:" . adTimeMis . ".")
 
 IfNotExist %vcodeImgPath%
 {
 	FileCreateDir, %vcodeImgPath%
 }
-
+preLoginAccountId := 0
 Loop
 {
 	try
@@ -104,6 +101,10 @@ Loop
 		if(!account || !accountId || !accountName || !accountPwd)
 		{
 			logError("No account from server.")
+			if (supportAdsl)
+			{
+				restartRoute()
+			}
 			SleepBeforeNextLoop()
 			continue
 		}
@@ -115,7 +116,14 @@ Loop
 			SleepBeforeNextLoop()
 			continue
 		}
-		closePreIe()		
+		if(preLoginAccountId !=0 and preLoginAccountId != accountId)
+		{
+			if (supportAdsl)
+			{
+				restartRoute()
+			}
+		}
+		closePreIe()
 		homepageWb := IqiyiGotoHomepage()
 		if !homepageWb
 		{
@@ -128,10 +136,17 @@ Loop
 		Sleep 500
 		logInfo("Get the iqiyi homepage account login status.")
 		logged := IqiyiAccoountHadAccountLogged(homepageWb)
-		accountLogged := false		
+		accountLogged := false
 		if (logged)
 		{
-			accountLogged := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
+			if(preLoginAccountId == account.id)
+			{
+				accountLogged := true
+			}
+			else
+			{
+				accountLogged := IqiyiAccoountIsCurrentLoggedAccount(homepageWb, account.nickname)
+			}
 			if (!accountLogged)
 			{
 				logInfo("Logout from the homepage. Pre logined account dose not equal current account." . accountName)
@@ -155,7 +170,16 @@ Loop
 			if (!accountLoginInfo.result)
 			{
 				logError("Failed to login from the homepage.Errmsg:" . accountLoginInfo.info)
-				reportAccountLoginInfo(accountId, -1, accountLoginInfo.info)
+				if(accountLoginInfo.info = "账号密码错误")
+				{
+					reportAccountLoginInfo(accountId, -1, accountLoginInfo.info)
+				}
+				if (supportAdsl)
+				{
+					logInfo("Start restrt adsl")
+					restartRoute()
+					logInfo("Finish restrt adsl")
+				}
 				returnAccountToRemoteServer(accountId)
 				SleepBeforeNextLoop()
 				continue
@@ -172,6 +196,7 @@ Loop
 				}
 			}
 		}
+		preLoginAccountId = account.id
 		closeIEDomExcludiveHomepage(homepageUrl)
 		logInfo("Logined the iqiyi account:" . accountName)		
 		tasks := remoteTaskInfo.tasks
@@ -180,10 +205,6 @@ Loop
 		logInfo("Finish play the account's video:" . accountName . ". Restart the route.")
 		;restart the route
 		closePreIe()
-		if (supportAdsl)
-		{
-			restartRoute()
-		}
 	}
 	catch e
 	{
@@ -286,6 +307,7 @@ restartRoute()
 {
 	stopRasdialFilePath := A_WorkingDir . "\stop_rasdial.bat"
 	startRasdialFilePath := A_WorkingDir . "\start_rasdial.bat"
+	logInfo("Stop adsl")
 	if not A_IsAdmin
 	{
 	   Run, *RunAs %stopRasdialFilePath%
@@ -294,7 +316,8 @@ restartRoute()
 	{
 		Run, %stopRasdialFilePath%
 	}
-	Sleep 5000
+	Sleep 15000
+	logInfo("Start adsl")
 	if not A_IsAdmin
 	{
 	   Run, *RunAs %startRasdialFilePath%
@@ -311,7 +334,7 @@ SleepBeforeNextLoop()
 	closePreIe()
 	global loopSleep
 	try{
-		logInfo("Sleep 30000 before next loop")
+		logInfo("Sleep " . loopSleep . " before next loop")
 		Sleep %loopSleep%
 	}
 	catch

@@ -50,11 +50,14 @@ loginFromSecureIndexPage(secureIndexPage, loginName, loginPwd)
 }
 
 
-
-
 initAccountInput(loginPage, loginName)
 {
-	inputElements := loginPage.document.getElementsByTagName("input")
+	div := findIeElementById(loginPage, "qipaLoginIfr")
+	if (not div)
+	{
+		return false
+	}
+	inputElements := div.getElementsByTagName("input")
 	accountInputEle := findIEElementByTwoAttr(inputElements, "type", "text", "data-loginbox-elem", "emailInput")
 	if (!accountInputEle)
 	{
@@ -67,7 +70,12 @@ initAccountInput(loginPage, loginName)
 
 initPwdInput(loginPage, loginPwd)
 {
-	inputElements := loginPage.document.getElementsByTagName("input")
+	div := findIeElementById(loginPage, "qipaLoginIfr")
+	if (not div)
+	{
+		return false
+	}
+	inputElements := div.getElementsByTagName("input")
 	passwdInputEle := findIEElementByTwoAttr(inputElements, "type", "password", "data-loginbox-elem", "passwdInput")
 	if (!passwdInputEle)
 	{
@@ -80,7 +88,12 @@ initPwdInput(loginPage, loginPwd)
 
 initVcodeInput(loginPage)
 {
-	spanElements := loginPage.document.getElementsByTagName("span")
+	div := findIeElementById(loginPage, "qipaLoginIfr")
+	if (not div)
+	{
+		return false
+	}
+	spanElements := div.getElementsByTagName("span")
 	vcodeEle := findIEElement(spanElements, "data-loginbox-elem", "piccode")
 	if (EleExistsAndDisplay(vcodeEle))
 	{
@@ -103,7 +116,13 @@ initVcodeInput(loginPage)
 
 clickLoginBtn(loginPage)
 {
-	ahrefs := loginPage.document.getElementsByTagName("a")
+	div := findIeElementById(loginPage, "qipaLoginIfr")
+	if (not div)
+	{
+		return false
+	}
+	ahrefs := div.getElementsByTagName("a")
+	
 	loginBtn := findIEElement(ahrefs, "data-loginbox-elem", "loginBtn")
 	if(loginBtn)
 	{

@@ -27,7 +27,7 @@ SetInputEleValue(inputEle, value)
 		inputEle.click()
 		Sleep 500
 		inputEle.value := value
-		Sleep 2000
+		Sleep 4000
 		return true
 	}
 	catch
@@ -175,6 +175,11 @@ findIEElementInDom(wb, eleId)
 	{
 		return wb.document.getElementById(eleId)
 	}
+}
+
+findIeElementById(wb, eleId)
+{
+	return findIEElementInDom(wb, eleId)
 }
 
 findIEElement(eles, attrName, attrValue)
