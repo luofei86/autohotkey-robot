@@ -72,13 +72,14 @@ moveToVcodeImg(vcodeEle, pwinLeft, pwinTop)
 	MouseGetPos, x, y
 	mouseMoveX := gotoX -x
 	mouseMoveY := gotoY - y
+	logInfo("Current mouse x:" . x . ", y:" . y . ", current ele x:" . vcodeElePos.left . ", y:" . vcodeElePos.top . ", current pwin left:" . pwinLeft . ", pwin top:" . pwinTop . ", then move mouse x" . mouseMoveX . ", y:" . mouseMoveY)
 	MouseMove, mouseMoveX, mouseMoveY, 100, R
 	Sleep 2000
 }
 
 saveVcodeImg(imgPath)
 {
-	MouseClick, click
+	MouseClick, left
 	Sleep 1500
 	MouseClick, right
 	Sleep 1500

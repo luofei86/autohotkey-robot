@@ -74,11 +74,11 @@ IfExist, %appConfFilePath%
 		}
 		else if (contentKey = "supportAdsl")
 		{
-			supportAdsl := supportAdsl
+			supportAdsl := contentValue
 		}
 		else if (contentKey = "adTimeMis")
 		{
-			adTimeMis := adTimeMis
+			adTimeMis := contentValue
 		}
 	}
 }
