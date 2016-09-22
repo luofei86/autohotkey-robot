@@ -13,11 +13,13 @@
 	
 	4）exePath:验证码识别程序地址，解决当前vcode目录中的exe即为程序执行exe
 	
-	5）defaultIEBarTop：默认ie打开时dom	win与屏幕的顶边差。由于有的windows系统精简，程序可能获取此值会失败，所以请手工设计此值，此值根IE版本号及系统分辨率相关 即可。
+	5）vcodex,vcodey。
+	
+		a)点击InitVcodePos.exe
 
-		a)IE7: 1920 * 1080   ------89
+		b)打开IE浏览器，进入iqiyi后，点击登录，输入任意账号和错误密码，直到验证码出现
 
-		b)IE11: 1920 * 1080   ------45
+		c)将鼠标移到验证码上，按ctrl+g 将会弹出vcodex:? vcodey? 即你需要在app.conf中设置的值
 	
 	6）supportAdsl：默认为false，即不支持重启adsl宽带连接
 
@@ -63,7 +65,7 @@
 五、更新环境后继续相关自动化操作
 
   1）搜索查找
-  
+
   2）直接进入
 
 六、根据步骤一获取到的数据，决定是否对五进行循环。

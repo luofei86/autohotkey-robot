@@ -90,7 +90,6 @@ initVcodeInput(loginPage)
 		{
 			return false
 		}
-		;enterVcode(pageWb, imgEle, inputVcodeEle)
 		enteredVcode := enterVcode(loginPage, vcodeEle, vcodeInputEle)
 		if (!enteredVcode)
 		{

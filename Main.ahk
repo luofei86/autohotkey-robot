@@ -47,9 +47,13 @@ IfExist, %appConfFilePath%
 		{
 			useLoginIndexUrl := contentValue
 		}
-		else if (contentKey = "defaultScreenLeft")
+		else if (contentKey = "vcodex")
 		{
-			defaultScreenLeft := contentValue
+			vcodex := contentValue
+		}
+		else if (contentKey = "vcodey")
+		{
+			vcodey := contentValue
 		}
 		else if (contentKey = "loopSleep")
 		{
@@ -64,7 +68,7 @@ IfExist, %appConfFilePath%
 			adTimeMis := adTimeMis
 		}
 	}
-	logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", defaultScreenLeft:" . defaultScreenLeft . ", loopSleep:" . loopSleep . "." )
+	logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", vcodex:" . vcodex . ", vcodey:" . vcodey . ", loopSleep:" . loopSleep . "." )
 }
 else
 {
@@ -76,7 +80,8 @@ else
 	callbackUrl := "http://zhaopai.tv/crontab/aqiyi.playvideo.callback.php"
 	secureIndexUrl := "http://passport.iqiyi.com/pages/secure/index.action"
 	useLoginIndexUrl := "http://passport.iqiyi.com/user/login.php"
-	defaultScreenLeft  := 0
+	vcodex := 964
+	vcodey := 400
 	loopSleep := 3000
 	supportAdsl := false
 	adTimeMis := 6000

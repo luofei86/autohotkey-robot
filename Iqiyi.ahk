@@ -146,6 +146,7 @@ startAndWaitVideoPlayFinished(videoWb, sleepTimeMis)
 				;move to click play
 				pWin := videoWb.document.parentWindow
 				moveToPosWithBottom(flashPlayer, pWin)
+				MouseClick, left
 			}
 		}
 		global adTimeMis
