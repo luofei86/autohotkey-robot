@@ -11,7 +11,7 @@ enterVcode(pageWb, imgEle, inputVcodeEle)
 	pWin := pageWb.Document.ParentWindow
 	pwinLeft := _getPwinLeft(pWin)
 	pwinTop := _getPwinTop(pWin)
-	moveToVcodeImg(imgEle, pwinLeft, pwinTop)
+	moveToVcodeImgByPython(imgEle, pwinLeft, pwinTop)
 	imgFileName :=% A_Now
 	imgPath :=  vcodeImgPath . imgFileName . ".png"
 	saveVcodeImg(imgPath)
@@ -63,6 +63,25 @@ _getPwinTop(pwin)
 	}
 }
 
+moveToVcodeImgByPython(vcodeEle, pwinLeft, pwinTop)
+{
+	;mousepos.txt the soft comm with python by file
+	global commPythonPath
+	vcodeElePos := findPos(vcodeEle)
+	gotoX := vcodeElePos.left + (135/2) + pwinLeft
+	gotoY := vcodeElePos.top + (36/2) + pwinTop	
+	mouseXFileStr := "x:" . gotoX . "`n"
+	mouseYFileStr := "y:" . gotoY
+	
+	FileDelete, %commPythonPath%
+	FileAppend, %mouseXFileStr%, %commPythonPath%
+	FileAppend, %mouseYFileStr%, %commPythonPath%	
+	;exe move by python
+	mouseMoveByPython()
+	Sleep 3000
+	MouseGetPos, x, y
+	logInfo("The ele pos x:" . gotoX . ", y:" . gotoY . ", the current mouse x:" . x . ", y:" . y . ".")
+}
 
 moveToVcodeImg(vcodeEle, pwinLeft, pwinTop)
 {
@@ -80,14 +99,14 @@ moveToVcodeImg(vcodeEle, pwinLeft, pwinTop)
 
 saveVcodeImg(imgPath)
 {
-	MouseClick, left
-	Sleep 1500
+	;~ MouseClick, left
+	;~ Sleep 1500
 	MouseClick, right
-	Sleep 1500
+	Sleep 2000
 	Send {s}
-	Sleep 3000
+	Sleep 2000
 	Send %imgPath%
-	Sleep 1000
+	Sleep 2000
 	Send {Enter}
 	Sleep 3000
 }

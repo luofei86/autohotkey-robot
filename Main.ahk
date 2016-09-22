@@ -20,6 +20,9 @@ pwinTop := 89
 loopSleep := 3000
 supportAdsl := 0
 adTimeMis := 6000
+commPythonPath := "D:\sources\github\autohotkey-robot\mousepos.txt"
+pythonMouseMoveExePath := "D:\sources\github\autohotkey-robot\dist\MoveMouse.exe"
+
 appConfFilePath := A_WorkingDir . "\app.conf"
 IfExist, %appConfFilePath%
 {
@@ -80,6 +83,15 @@ IfExist, %appConfFilePath%
 		{
 			adTimeMis := contentValue
 		}
+		else if (contentKey = "commPythonPath")
+		{
+			commPythonPath := contentValue
+		}
+		else if (contentKey = "pythonMouseMoveExePath")
+		{
+			pythonMouseMoveExePath := contentValue
+		}
+		
 	}
 }
 logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", pwinLeft:" . pwinLeft . ", pwinTop:" . pwinTop . ", loopSleep:" . loopSleep . "." . ", supportAdsl:" . supportAdsl . ", adTimeMis:" . adTimeMis . ".")

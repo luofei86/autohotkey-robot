@@ -4,6 +4,13 @@
 ;~ exePath := "D:\sources\github\autohotkey-vcode\Release\dll.exe"
 ;exePath := "C:\auto\vcode\dll.exe"
 
+mouseMoveByPython()
+{
+  global pythonMouseMoveExePath
+  Run , %pythonMouseMoveExePath%,,Hide
+  Sleep 500
+}
+
 distinctVcode(vcodeImgPath, vcodeResultPath)
 {
   global exePath
