@@ -67,6 +67,7 @@ _getPwinTop(pwin)
 moveToVcodeImg(vcodeEle, pwinLeft, pwinTop)
 {
 	vcodeElePos := findPos(vcodeEle)
+	CoordMode, Mouse, Screen
 	gotoX := vcodeElePos.left + (135/2) + pwinLeft
 	gotoY := vcodeElePos.top + (36/2) + pwinTop
 	MouseGetPos, x, y

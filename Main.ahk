@@ -116,7 +116,7 @@ Loop
 			SleepBeforeNextLoop()
 			continue
 		}
-		if(preLoginAccountId !=0 and preLoginAccountId != accountId)
+		if(preLoginAccountId != 0 and preLoginAccountId != accountId)
 		{
 			if (supportAdsl)
 			{
@@ -178,7 +178,7 @@ Loop
 				{
 					logInfo("Start restrt adsl")
 					restartRoute()
-					logInfo("Finish restrt adsl")
+					logInfo("Finish restart adsl")
 				}
 				returnAccountToRemoteServer(accountId)
 				SleepBeforeNextLoop()
@@ -316,7 +316,7 @@ restartRoute()
 	{
 		Run, %stopRasdialFilePath%
 	}
-	Sleep 15000
+	Sleep 10000
 	logInfo("Start adsl")
 	if not A_IsAdmin
 	{
@@ -326,7 +326,7 @@ restartRoute()
 	{
 		Run, %startRasdialFilePath%
 	}
-	SleepBeforeNextLoop()
+	Sleep 10000
 }
 
 SleepBeforeNextLoop()
