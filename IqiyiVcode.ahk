@@ -72,8 +72,10 @@ moveToVcodeImgByPython(vcodeEle, pwinLeft, pwinTop)
 	gotoY := vcodeElePos.top + (36/2) + pwinTop	
 	mouseXFileStr := "x:" . gotoX . "`n"
 	mouseYFileStr := "y:" . gotoY
-	
-	FileDelete, %commPythonPath%
+	IfExist, %commPythonPath%
+	{
+		FileDelete, %commPythonPath%
+	}
 	FileAppend, %mouseXFileStr%, %commPythonPath%
 	FileAppend, %mouseYFileStr%, %commPythonPath%	
 	;exe move by python
