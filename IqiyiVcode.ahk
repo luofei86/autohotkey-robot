@@ -79,7 +79,7 @@ moveToVcodeImgByPython(vcodeEle, pwinLeft, pwinTop)
 	FileAppend, %mouseXFileStr%, %commPythonPath%
 	FileAppend, %mouseYFileStr%, %commPythonPath%	
 	;exe move by python
-	mouseMoveByPython()
+	mouseMoveByPython(commPythonPath)
 	Sleep 3000
 	MouseGetPos, x, y
 	logInfo("The ele pos x:" . gotoX . ", y:" . gotoY . ", the current mouse x:" . x . ", y:" . y . ".")

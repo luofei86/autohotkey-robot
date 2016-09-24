@@ -14,25 +14,32 @@ import win32api, win32con
 	# mouseMoveY := gotoY - y
 	# logInfo("Current mouse x:" . x . ", y:" . y . ", current ele x:" . vcodeElePos.left . ", y:" . vcodeElePos.top . ", current pwin left:" . pwinLeft . ", pwin top:" . pwinTop . ", then move mouse x" . mouseMoveX . ", y:" . mouseMoveY)
 	# MouseMove, mouseMoveX, mouseMoveY, 100, R
+
+
 def we_are_frozen():
 	return hasattr(sys, "frozen")
 
+if (len(sys.argv) == 1):
+	encoding = sys.getfilesystemencoding()
+	if we_are_frozen():
+		exePath = os.path.dirname(unicode(sys.executable, encoding))
+	else:
+		exePath = os.path.dirname(unicode(__file__, encoding))
 
-
-encoding = sys.getfilesystemencoding()
-if we_are_frozen():
-	exePath = os.path.dirname(unicode(sys.executable, encoding))
+	exePath = abspath(getsourcefile(lambda:0))
+	# print "My path: %s" %(exePath)
+	rightIndex = exePath.rfind("\\")
+	# print "My path last dir index: %d" %(rightIndex)
+	if(rightIndex):
+		mouseMovePath = exePath[0:rightIndex] + "\\mousepos.txt"
 else:
-	exePath = os.path.dirname(unicode(__file__, encoding))
+	mouseMovePath = sys.argv[1]
 
-exePath = abspath(getsourcefile(lambda:0))
-# print "My path: %s" %(exePath)
-rightIndex = exePath.rfind("\\")
-# print "My path last dir index: %d" %(rightIndex)
-if(rightIndex):
-	pathDir = exePath[0:rightIndex]
 # print "My path dir: %s" %(pathDir)
-mouseMovePath = pathDir + "\\mousepos.txt"
+# mouseMovePath = pathDir + "\\mousepos.txt"
+logFile = open ( 'C:\\python_mousemove.txt', 'a' )
+logFile.write ( 'Current mousepos txt path %s.\n' % (mouseMovePath))
+logFile.close()
 # print "My path path: %s" %(mouseMovePath)
 # print "OK"
 try:
@@ -48,9 +55,14 @@ try:
 	if(mouseX and mouseY):
 		mouseX = int(round(float(mouseX)))
 		mouseY = int(round(float(mouseY)))
-
 		win32api.SetCursorPos((mouseX, mouseY))
+		logFile = open ( 'C:\\python_mousemove.txt', 'a' )
+		logFile.write ( 'Current set mouse positon %d, %d.\n' % (mouseX, mouseY))
+		logFile.close()
 except Exception, e:
+	logFile = open ( 'C:\\python_mousemove.txt', 'a' )
+	logFile.write ( 'Current set mouse positon error %s.\n' % (sys.exc_info()[1]))
+	logFile.close()
 	print e
 # print "Movex:%s, Movey:%s" %(mouseX, mouseY)
 

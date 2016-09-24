@@ -101,6 +101,7 @@ IfNotExist %vcodeImgPath%
 	FileCreateDir, %vcodeImgPath%
 }
 preLoginAccountId := 0
+preStartTime := 0
 Loop
 {
 	try
@@ -317,6 +318,24 @@ gotoPlayVideo(videoPageWb, taskInfo, accountId)
 
 restartRoute()
 {
+	;;不太频繁的重启adsl
+	global preStartTime
+	if (preStartTime)
+	{
+		;当前时间
+		curTime := A_Now		
+		EnvSub, curTime, %preStartTime%, minutes		
+		if (%curTime% < 5)
+		{
+			return
+		}		
+	}
+	else
+	{
+		preStartTime := A_Now
+		return
+	}
+	preStartTime := A_Now
 	stopRasdialFilePath := A_WorkingDir . "\stop_rasdial.bat"
 	startRasdialFilePath := A_WorkingDir . "\start_rasdial.bat"
 	logInfo("Stop adsl")
