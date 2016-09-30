@@ -2,6 +2,12 @@
 #Include MachineUtils.ahk
 #Include LoggerUtils.ahk
 #Include json\JSON.ahk
+global isTest
+
+if isTest
+{
+	#Include LocalApi.ahk
+}
 
 ServerApiStrRemoteTaskInfo(remoteTaskInfo)
 {
@@ -14,6 +20,24 @@ ServerApiStrRemoteTaskInfo(remoteTaskInfo)
 ;根据机器码来获取需要播放的视频信息,由服务器确保当前账号只分发给一台机器处理
 ServerApiGetRemoteTaskInfo()
 {
+	global isTest
+	if isTest
+	{
+		taskInfo := {}
+		Random, rand, 0, 1
+		if (rand)
+		{
+			taskInfo.account := _initAccount1()
+		}
+		else
+		{
+			taskInfo.account := _initAccount()
+		}
+		
+		taskInfo.tasks := _initTasks()
+		return taskInfo
+	}
+	
 	macAddress := GetMacAddress()
 	if macAddress
 	{
@@ -23,19 +47,6 @@ ServerApiGetRemoteTaskInfo()
 		logInfo(responseInfo)
 		value := JSON.Load(responseInfo)
 		return value
-		;~ taskInfo := {}
-		;~ Random, rand, 0, 1
-		;~ if (rand)
-		;~ {
-			;~ taskInfo.account := _initAccount1()
-		;~ }
-		;~ else
-		;~ {
-			;~ taskInfo.account := _initAccount()
-		;~ }
-		
-		;~ taskInfo.tasks := _initTasks()
-		;~ return taskInfo
 	}
 }
 

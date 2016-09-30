@@ -22,6 +22,7 @@ supportAdsl := 0
 adTimeMis := 6000
 commPythonPath := "D:\sources\github\autohotkey-robot\mousepos.txt"
 pythonMouseMoveExePath := "D:\sources\github\autohotkey-robot\dist\MoveMouse.exe"
+isTest := 0
 
 appConfFilePath := A_WorkingDir . "\app.conf"
 IfExist, %appConfFilePath%
@@ -91,10 +92,14 @@ IfExist, %appConfFilePath%
 		{
 			pythonMouseMoveExePath := contentValue
 		}
+		else if (contentKey = "isTest")
+		{
+			isTest := contentValue
+		}
 		
 	}
 }
-logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", pwinLeft:" . pwinLeft . ", pwinTop:" . pwinTop . ", loopSleep:" . loopSleep . "." . ", supportAdsl:" . supportAdsl . ", adTimeMis:" . adTimeMis . ".")
+logInfo("Get conf from app conf file.debugRun:" . debugRun . ", homepageUrl:" . homepageUrl . ", vcodeImgPath:" . vcodeImgPath . ", exePath:" . exePath . ", taskUrl:" . taskUrl . ", callbackUrl:" . callbackUrl . ", secureIndexUrl:" . secureIndexUrl . ", useLoginIndexUrl:" . useLoginIndexUrl . ", pwinLeft:" . pwinLeft . ", pwinTop:" . pwinTop . ", loopSleep:" . loopSleep . "." . ", supportAdsl:" . supportAdsl . ", adTimeMis:" . adTimeMis . ", isTest:" . isTest . ".")
 
 IfNotExist %vcodeImgPath%
 {
